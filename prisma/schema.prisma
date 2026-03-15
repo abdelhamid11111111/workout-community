@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String      @id @default(cuid())
+  username      String      @unique
+  email         String      @unique
+  passwordHash  String
+  currentLevel  Level?
+  personalGoals String[]
+  workoutTime   WorkoutTime
+  profilePic    String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  challenges UserChallenge[]
+  workouts   Workout[]
+
+  @@index([email])
+  @@index([username])
+}
+
+enum WorkoutTime {
+  Morning
+  Afternoon
+  Evening
+  Night
+}
+
+enum Level {
+  beginner
+  intermediate
+  advanced
+}
+
+enum Categories {
+  Cardio
+  Strength
+  Yoga
+  HIIT
+  Pilates
+  Stretching
+  Sports
+  Running
+}
+
+model Challenge {
+  id           String     @id @default(cuid())
+  title        String
+  subtitle     String?
+  description  String?
+  active       Boolean    @default(true)
+  category     Categories
+  level        Level
+  days         Int
+  rewardPoints Int        @default(0)
+  goals        String[]
+  imgs         String[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  userChallenges UserChallenge[]
+  workouts       Workout[]
+
+  @@index([category])
+  @@index([level])
+  @@index([active])
+}
+
+model UserChallenge {
+  id          String   @id @default(cuid())
+  userId      String
+  challengeId String
+  joinedAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, challengeId])
+  @@index([userId])
+  @@index([challengeId])
+}
+
+enum Intensity {
+  Low
+  Moderate
+  High
+  Very
+}
+
+enum Feel {
+  VeryBad
+  Bad
+  Neutral
+  Good
+  VeryGood
+}
+
+model Workout {
+  id             String    @id @default(cuid())
+  userId         String
+  challengeId    String
+  duration       Int
+  description    String
+  caloriesBurned Int?
+  intensityLevel Intensity
+  feel           Feel?
+  loggedAt       DateTime
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([challengeId])
+  @@index([loggedAt])
+}
+
+model Analytics {
+  id        String   @id @default(cuid())
+  ip        String?
+  country   String?
+  region    String?
+  city      String?
+  device    String?
+  browser   String?
+  os        String?
+  path      String
+  visitorId String?
+  sessionId String?
+  referer   String?
+  source    String? // google / twitter / direct
+  createdAt DateTime @default(now())
+}
