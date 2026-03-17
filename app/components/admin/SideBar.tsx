@@ -43,9 +43,9 @@ export default function Sidebar() {
       {/* Sidebar */}
       <div
         className={`
-          fixed top-0 left-0 z-50 h-screen w-64 bg-white border-r border-slate-200 flex flex-col py-8 px-4
+          fixed top-0 right-0 z-50 h-screen w-64 bg-white border-r border-slate-200 flex flex-col py-8 px-4
           transition-transform duration-300
-          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+          ${isOpen ? "translate-x-0" : "translate-x-full"}
           lg:sticky lg:translate-x-0
         `}
       >
@@ -68,12 +68,12 @@ export default function Sidebar() {
         {/* Nav Links */}
         <nav className="flex flex-col gap-1">
           <Link
-            href="/dashboard"
+            href="/admin/dashboard"
             onClick={() => setIsOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-              pathname === "/dashboard"
+              pathname === "/admin/dashboard"
                 ? "bg-indigo-50 text-indigo-600"
-                : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                : "text-slate-500 hover:bg-slate-50 hover:text-indigo-600"
             }`}
           >
             <LayoutDashboard className="w-5 h-5" />
@@ -81,12 +81,12 @@ export default function Sidebar() {
           </Link>
 
           <Link
-            href="/analytics"
+            href="/admin/analytics"
             onClick={() => setIsOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-              pathname === "/analytics"
+              pathname === "/admin/analytics"
                 ? "bg-indigo-50 text-indigo-600"
-                : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                : "text-slate-500 hover:bg-slate-50 hover:text-indigo-600"
             }`}
           >
             <BarChart3 className="w-5 h-5" />
@@ -94,12 +94,12 @@ export default function Sidebar() {
           </Link>
 
           <Link
-            href="/challenges"
+            href="/admin/challenges"
             onClick={() => setIsOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-              pathname === "/challenges"
+              pathname === "/admin/challenges"
                 ? "bg-indigo-50 text-indigo-600"
-                : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                : "text-slate-500 hover:bg-slate-50 hover:text-indigo-600"
             }`}
           >
             <Trophy className="w-5 h-5" />
@@ -107,12 +107,12 @@ export default function Sidebar() {
           </Link>
 
           <Link
-            href="/users"
+            href="/admin/users"
             onClick={() => setIsOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-              pathname === "/users"
+              pathname === "/admin/users"
                 ? "bg-indigo-50 text-indigo-600"
-                : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                : "text-slate-500 hover:bg-slate-50 hover:text-indigo-600"
             }`}
           >
             <Users className="w-5 h-5" />

@@ -3,7 +3,7 @@ import { MousePointerClick, Clock, Users, ArrowUpRight } from "lucide-react";
 
 const Cards = () => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-indigo-100">
           <Users className="w-5 h-5 text-indigo-500" />
