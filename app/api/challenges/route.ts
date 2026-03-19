@@ -1,0 +1,115 @@
+import { NextResponse } from "next/server";
+import { prisma } from "../../../lib/prisma";
+import cloudinary from "@/lib/cloudinary";
+import { Level, Categories } from "../../../generated/prisma/enums";
+
+export async function POST(req: Request) {
+  try {
+    const formData = await req.formData();
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const subtitle = formData.get("subtitle") as string;
+    const days = formData.get("days") as string;
+    const rewardPoints = formData.get("rewardPoints") as string;
+    const category = formData.get("category") as string;
+    const level = formData.get("level") as string;
+    const goals = formData.getAll("goals[]") as string[];
+    const images = formData.getAll("images[]") as File[];
+
+    if (
+      !title ||
+      !description ||
+      !subtitle ||
+      !days ||
+      !rewardPoints ||
+      !category ||
+      !level ||
+      !goals.length ||
+      !images.length
+    ) {
+      return NextResponse.json(
+        { error: "All fields are required" },
+        { status: 400 },
+      );
+    }
+
+    // check reward points and days is it number
+    if (isNaN(Number(rewardPoints)) || Number(days) <= 0) {
+      return NextResponse.json(
+        {
+          error: "reward points is not valid",
+        },
+        { status: 400 },
+      );
+    }
+    if (isNaN(Number(days)) || Number(days) <= 0) {
+      return NextResponse.json(
+        {
+          error: "days is not valid",
+        },
+        { status: 400 },
+      );
+    }
+
+    // check title, description and subtitle is it string
+    if (
+      typeof title !== "string" ||
+      typeof description !== "string" ||
+      typeof subtitle !== "string"
+    ) {
+      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    }
+
+    // upload img into cloudinary
+    const uploadedUrls: string[] = [];
+
+    for (const img of images) {
+      // convert file to base64
+      const bytes = await img.arrayBuffer();
+      const base64 = Buffer.from(bytes).toString("base64");
+      const dataUri = `data:${img.type};base64,${base64}`;
+
+      // send to cloudinary
+      const result = await cloudinary.uploader.upload(dataUri, {
+        folder: "challenges",
+      });
+
+      // save the url
+      uploadedUrls.push(result.secure_url);
+    }
+
+    // active
+    const endDate = new Date();
+    // getDate() get just the day number,   new Date() -> March 19, 2026 . with getDate() -> 19
+    const date = endDate.getDate() + Number(days); // if days = 30
+    // setDate() combine calculus inside into regular date,  converts to April 19
+    endDate.setDate(date);
+
+    const active = new Date() < endDate;
+
+    // send res
+    const createChallenge = await prisma.challenge.create({
+      data: {
+        title: title.trim(),
+        subtitle: subtitle.trim(),
+        description: description.trim(),
+        days: Number(days),
+        level: level as Level,
+        category: category as Categories,
+        rewardPoints: Number(rewardPoints),
+        goals: goals,
+        imgs: uploadedUrls,
+        active: active,
+      },
+      include: {
+        workouts: true,
+        userChallenges: true,
+      },
+    });
+
+    return NextResponse.json(createChallenge, { status: 201 });
+  } catch (error) {
+    console.error("Error ", error);
+    return NextResponse.json({ error: "server error" }, { status: 500 });
+  }
+}

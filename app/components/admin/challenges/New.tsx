@@ -1,25 +1,15 @@
 "use client";
 import Sidebar from "@/app/components/admin/SideBar";
+import { FormType } from "@/app/types/types";
 import { ArrowLeft, Plus, X, ImagePlus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   categories: string[];
   levels: string[];
-};
-
-type FormType = {
-  title: string;
-  subtitle: string;
-  description: string;
-  days: string;
-  rewardPoints: string;
-  category: string;
-  level: string;
-  goals: string[];
-  images: (File | null)[];
 };
 
 export default function NewChallengePage({ categories, levels }: Props) {
@@ -40,10 +30,16 @@ export default function NewChallengePage({ categories, levels }: Props) {
     goals: [],
     images: [null, null, null],
   });
+  const router = useRouter()
 
   const addGoal = () => setGoals([...goals, ""]);
-  const removeGoal = (i: number) =>
+  const removeGoal = (i: number) => {
     setGoals(goals.filter((_, idx) => idx !== i));
+
+    const goalsArray = [...form.goals];
+    goalsArray.splice(i, 1);
+    setForm({ ...form, goals: goalsArray });
+  };
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>, i: number) => {
     const file = e.target.files?.[0];
@@ -52,15 +48,51 @@ export default function NewChallengePage({ categories, levels }: Props) {
     // Preview (display only)
     // take copy existing perv imgs
     const updatedPreviews = [...imagePreview];
-    // each pic get its url 
+    // each pic get its url
     updatedPreviews[i] = URL.createObjectURL(file);
-    // pit it in prev state to be visible
+    // update state to be visible
     setImagePreview(updatedPreviews);
 
     // Store actual File for upload
+    // get copy of existing img array
     const updatedImages = [...form.images];
+    // put the new file in the right box
     updatedImages[i] = file;
+    // save the new array in the form
     setForm({ ...form, images: updatedImages });
+  };
+
+  const handleAddChall = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    try {
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("subtitle", form.subtitle);
+      formData.append("days", form.days);
+      formData.append("rewardPoints", form.rewardPoints);
+      formData.append("category", form.category);
+      formData.append("level", form.level);
+      form.goals.forEach((goal) => {
+        if (goal) formData.append("goals[]", goal);
+      });
+      form.images.forEach((image) => {
+        if (image) formData.append("images[]", image);
+      });
+
+      const res = await fetch('/api/challenges', {
+        method: 'POST',
+        body: formData
+      })
+
+      if(res.ok){
+        router.push('/admin/challenges')
+      }
+
+
+    } catch (error) {
+      console.error("Error ", error);
+    }
   };
 
   return (
@@ -289,7 +321,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
                       <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
                       <input
                         type="text"
-                        value={form.goals[i]}
+                        value={form.goals[i] ?? ""}
                         onChange={(e) => {
                           // makes a copy: ["", ""] → ["", ""]
                           const updated = [...form.goals];
@@ -302,7 +334,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
                         }}
                         name="goals[]"
                         placeholder={`Goal ${i + 1}...`}
-                        className="flex-1 px-3 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white transition-all"
+                        className="flex-1 px-3 py-2.5 text-sm m-0.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white transition-all"
                       />
                       {goals.length > 1 && (
                         <button
@@ -362,12 +394,13 @@ export default function NewChallengePage({ categories, levels }: Props) {
                         <button
                           type="button"
                           onClick={() => {
-                            const updatedPreviews = [...imagePreview];
-                            updatedPreviews[i] = null;
-                            setImagePreview(updatedPreviews);
-                            const updatedImages = [...form.images];
-                            updatedImages[i] = null;
-                            setForm({ ...form, images: updatedImages });
+                            const prevImgs = [...imagePreview];
+                            prevImgs[i] = null;
+                            setImagePreview(prevImgs);
+
+                            const imgs = [...form.images];
+                            imgs[i] = null;
+                            setForm({ ...form, images: imgs });
                           }}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors shrink-0"
                         >
@@ -383,7 +416,8 @@ export default function NewChallengePage({ categories, levels }: Props) {
             {/* Submit */}
             <div className="flex justify-start gap-3 pt-2">
               <button
-                type="submit"
+                onClick={handleAddChall}
+                type="button"
                 className="flex items-center justify-center gap-2 py-3 px-6 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
               >
                 <Plus className="w-4 h-4" /> Create Challenge
