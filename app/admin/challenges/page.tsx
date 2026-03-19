@@ -1,6 +1,7 @@
 "use client";
 import Sidebar from "@/app/components/admin/SideBar";
 import { Search, Filter, ChevronDown, Pencil, Trash2, Plus, X } from "lucide-react";
+import Link from "next/link";
 
 export default function ChallengesPage() {
   return (
@@ -16,9 +17,11 @@ export default function ChallengesPage() {
               <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900">Challenges</h1>
               <p className="mt-1 text-slate-500 text-sm">12 total challenges</p>
             </div>
+            <Link href={'/admin/challenges/new'}>
             <button className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm self-start sm:self-auto">
               <Plus className="w-4 h-4" /> New Challenge
             </button>
+            </Link>
           </div>
 
           {/* Search + Filters */}
