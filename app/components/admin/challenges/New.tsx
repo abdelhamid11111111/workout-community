@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
 
 type Props = {
   categories: string[];
@@ -19,6 +20,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
     null,
     null,
   ]);
+  const [error, setError] = useState<null | string>(null);
   const [form, setForm] = useState<FormType>({
     title: "",
     subtitle: "",
@@ -30,7 +32,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
     goals: [],
     images: [null, null, null],
   });
-  const router = useRouter()
+  const router = useRouter();
 
   const addGoal = () => setGoals([...goals, ""]);
   const removeGoal = (i: number) => {
@@ -63,7 +65,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
   };
 
   const handleAddChall = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       const formData = new FormData();
       formData.append("title", form.title);
@@ -80,16 +82,19 @@ export default function NewChallengePage({ categories, levels }: Props) {
         if (image) formData.append("images[]", image);
       });
 
-      const res = await fetch('/api/challenges', {
-        method: 'POST',
-        body: formData
-      })
+      const res = await fetch("/api/challenges", {
+        method: "POST",
+        body: formData,
+      });
 
-      if(res.ok){
-        router.push('/admin/challenges')
+      const data = await res.json();
+
+      if (res.ok) {
+        router.push("/admin/challenges");
+      } else {
+        setError(data.error);
+        toast.error(data.error);
       }
-
-
     } catch (error) {
       console.error("Error ", error);
     }
@@ -98,7 +103,9 @@ export default function NewChallengePage({ categories, levels }: Props) {
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar />
-
+      <div>
+        <Toaster />
+      </div>
       <div className="flex-1 pb-16 min-w-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
           {/* Header */}
@@ -116,6 +123,12 @@ export default function NewChallengePage({ categories, levels }: Props) {
               Fill in the details to create a new challenge.
             </p>
           </div>
+
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium">
+              ⚠️ {error}
+            </div>
+          )}
 
           <form className="space-y-6">
             {/* ── Basic Info + Settings ── */}

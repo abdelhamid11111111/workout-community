@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // check reward points and days is it number
+    // 2. check reward points and days is it number
     if (isNaN(Number(rewardPoints)) || Number(days) <= 0) {
       return NextResponse.json(
         {
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // check title, description and subtitle is it string
+    // 3. check title, description and subtitle is it string
     if (
       typeof title !== "string" ||
       typeof description !== "string" ||
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    // upload img into cloudinary
+    // 4. upload img into cloudinary
     const uploadedUrls: string[] = [];
 
     for (const img of images) {
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
       uploadedUrls.push(result.secure_url);
     }
 
-    // active
+    // 5. active
     const endDate = new Date();
     // getDate() get just the day number,   new Date() -> March 19, 2026 . with getDate() -> 19
     const date = endDate.getDate() + Number(days); // if days = 30
@@ -87,7 +87,8 @@ export async function POST(req: Request) {
 
     const active = new Date() < endDate;
 
-    // send res
+
+    // 6. send res
     const createChallenge = await prisma.challenge.create({
       data: {
         title: title.trim(),
@@ -111,5 +112,19 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Error ", error);
     return NextResponse.json({ error: "server error" }, { status: 500 });
+  }
+}
+
+export async function GET(){
+  try{
+    const getChallenges = await prisma.challenge.findMany({
+      orderBy: {
+        id: 'desc'
+      }
+    })
+    return NextResponse.json(getChallenges, {status: 200})
+  } catch(error){
+    console.error('Error ', error);
+    return NextResponse.json({error: 'server error'}, {status: 500})
   }
 }
