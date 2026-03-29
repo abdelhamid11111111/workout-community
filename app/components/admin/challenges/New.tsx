@@ -20,6 +20,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
     null,
     null,
   ]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<null | string>(null);
   const [form, setForm] = useState<FormType>({
     title: "",
@@ -66,6 +67,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
 
   const handleAddChall = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const formData = new FormData();
       formData.append("title", form.title);
@@ -97,6 +99,8 @@ export default function NewChallengePage({ categories, levels }: Props) {
       }
     } catch (error) {
       console.error("Error ", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -197,7 +201,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
                     Duration (days) <span className="text-rose-500">*</span>
                   </label>
                   <input
-                    type="number"
+                    type="string"
                     name="days"
                     min="1"
                     value={form.days}
@@ -212,7 +216,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
                     Reward Points
                   </label>
                   <input
-                    type="number"
+                    type="string"
                     name="rewardPoints"
                     min="0"
                     value={form.rewardPoints}
@@ -430,10 +434,38 @@ export default function NewChallengePage({ categories, levels }: Props) {
             <div className="flex justify-start gap-3 pt-2">
               <button
                 onClick={handleAddChall}
+                disabled={loading}
                 type="button"
-                className="flex items-center justify-center gap-2 py-3 px-6 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
+                className="flex items-center justify-center gap-2 py-3 px-6 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <Plus className="w-4 h-4" /> Create Challenge
+                {loading ? (
+                  <>
+                    <svg
+                      className="w-4 h-4 animate-spin"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      />
+                    </svg>
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4" /> Create Challenge
+                  </>
+                )}
               </button>
               <Link
                 href="/admin/challenges"

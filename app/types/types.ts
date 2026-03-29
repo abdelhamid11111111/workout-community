@@ -23,5 +23,19 @@ export type challenge = {
   category: string;
   level: string;
   goals: string[];
-  images: (File | null)[];
+  imgs: (File | null)[];
+}
+
+export type ApiRes = {
+  data: challenge[],
+  pagination: pagination
+}
+
+export type pagination = {
+  totalPages: number,
+  currentPage: number,
+  hasNextPage: boolean,
+  hasPrevPage: boolean,
+  totalItems: number,
+  offset: number
 }
