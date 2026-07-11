@@ -45,9 +45,9 @@ export default function EditChallengesPage({ categories, levels }: Props) {
         const fetchedGoals: string[] = 
         data.goals && data.goals.length > 0 ? data.goals : ['', '', '']
 
-        // fill imgs — copy each URL from data.images into fetchedImages at the same index, capped at 3 slots
+        // fill imgs — copy each URL from data.imgs into fetchedImages at the same index, capped at 3 slots
         const fetchedImages: (string | null)[] = [null, null, null];
-        (data.images ?? []).forEach((url: string, i: number) => {
+        (data.imgs ?? []).forEach((url: string, i: number) => {
             if (i < 3) fetchedImages[i] = url
         })
 
@@ -69,8 +69,8 @@ export default function EditChallengesPage({ categories, levels }: Props) {
         console.error('Error: ', error)
       }
     };
-    fetchChallenge();
-  }, []);
+    if (id) fetchChallenge();
+  }, [id]);
 
   const router = useRouter();
 
@@ -333,6 +333,7 @@ export default function EditChallengesPage({ categories, levels }: Props) {
                         type="radio"
                         name="category"
                         value={cat}
+                        checked={form.category === cat}
                         onChange={(e) =>
                           setForm({ ...form, category: e.target.value })
                         }
@@ -361,6 +362,7 @@ export default function EditChallengesPage({ categories, levels }: Props) {
                       <input
                         type="radio"
                         name="level"
+                        checked={form.level === lv}
                         value={lv}
                         onChange={(e) =>
                           setForm({ ...form, level: e.target.value })
@@ -453,7 +455,7 @@ export default function EditChallengesPage({ categories, levels }: Props) {
                             width={56}
                             height={56}
                             className="w-full h-full object-cover"
-                            unoptimized={preview.startsWith('blob:')}
+                            unoptimized={true}
                           />
                         ) : (
                           <ImagePlus className="w-5 h-5 text-slate-300" />

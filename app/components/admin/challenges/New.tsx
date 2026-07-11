@@ -84,7 +84,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
         if (image) formData.append("images[]", image);
       });
 
-      const res = await fetch("/api/challenges", {
+      const res = await fetch("/api/admin/challenges", {
         method: "POST",
         body: formData,
       });

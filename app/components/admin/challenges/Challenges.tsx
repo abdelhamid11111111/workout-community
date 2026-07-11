@@ -189,7 +189,7 @@ export default function ChallengesPage({ categories, levels }: Props) {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/challenges?page=${page}&search=${search}&category=${category}&level=${level}&status=${status}`,
+        `/api/admin/challenges?page=${page}&search=${search}&category=${category}&level=${level}&status=${status}`,
       );
       const data: ApiRes = await res.json();
       setChallenges(data.data);
