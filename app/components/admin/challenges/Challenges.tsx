@@ -7,7 +7,7 @@ import { FaEye } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { ApiRes, challenge, pagination } from "../../../types/types";
 import { levelStyles, categoryStyles } from "../../../colors/data";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 type Props = {
   categories: string[];
@@ -179,18 +179,10 @@ export default function ChallengesPage({ categories, levels }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const fetchChallenges = async (
-    page: number = 1,
-    search: string,
-    category: string,
-    level: string,
-    status: string,
-  ) => {
+  const fetchChallenges = async (params: URLSearchParams) => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `/api/admin/challenges?page=${page}&search=${search}&category=${category}&level=${level}&status=${status}`,
-      );
+      const res = await fetch(`/api/admin/challenges?${params.toString()}`);
       const data: ApiRes = await res.json();
       setChallenges(data.data);
       setPaginationInfo(data.pagination);
@@ -202,20 +194,9 @@ export default function ChallengesPage({ categories, levels }: Props) {
   };
 
   useEffect(() => {
-    const pageFromUrl = Number(searchParams.get("page") || "1");
-    const searchFromUrl = searchParams.get("search") || "";
-    const levelFromUrl = searchParams.get("level") || "";
-    const statusFromUrl = searchParams.get("status") || "";
-    const categoryFromUrl = searchParams.get("category") || "";
-    setSearch(searchFromUrl);
-    setCurrentPage(pageFromUrl);
-    fetchChallenges(
-      pageFromUrl,
-      searchFromUrl,
-      categoryFromUrl,
-      levelFromUrl,
-      statusFromUrl,
-    );
+    setSearch(searchParams.get("search") || "");
+    setCurrentPage(Number(searchParams.get("page") || "1"));
+    fetchChallenges(searchParams);
   }, [searchParams]);
 
   const goToPage = (page: number) => {
@@ -262,6 +243,34 @@ export default function ChallengesPage({ categories, levels }: Props) {
     !loading && challenges.length > 0 && challenges.length < ITEMS_PER_PAGE
       ? ITEMS_PER_PAGE - challenges.length
       : 0;
+
+  const deleteChallenge = async (id: string) => {
+    if (!id) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/challenges/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        await fetchChallenges(searchParams); // reuses whatever filters/page are already active
+
+        const goBack = paginationInfo && paginationInfo.currentPage > 1;
+        const lastItem = challenges.length === 1;
+
+        if (goBack && lastItem) {
+          goToPage(paginationInfo!.currentPage - 1);
+        } else {
+          await fetchChallenges(searchParams);
+        }
+      }
+    } catch (error) {
+      console.error("Delete request error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -533,11 +542,14 @@ export default function ChallengesPage({ categories, levels }: Props) {
                                 </button>
                               </Link>
                               <Link href={`/admin/challenges/${challenge.id}`}>
-                              <button className="p-2 rounded-xl text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
-                                <Pencil className="w-4 h-4" />
-                              </button>
+                                <button className="p-2 rounded-xl text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
+                                  <Pencil className="w-4 h-4" />
+                                </button>
                               </Link>
-                              <button className="p-2 rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-colors">
+                              <button
+                                onClick={() => deleteChallenge(challenge.id)}
+                                className="p-2 rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-colors"
+                              >
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
