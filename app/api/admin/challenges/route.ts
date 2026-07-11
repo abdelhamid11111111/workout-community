@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../lib/prisma";
+import { prisma } from "../../../../lib/prisma";
 import cloudinary from "@/lib/cloudinary";
-import { Level, Categories } from "../../../generated/prisma/enums";
+import { Level, Categories } from "../../../../generated/prisma/enums";
 
 export async function POST(req: Request) {
   try {

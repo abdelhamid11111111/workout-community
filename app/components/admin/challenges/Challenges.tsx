@@ -18,7 +18,7 @@ const ITEMS_PER_PAGE = 6;
 
 const SkeletonRow = ({ index }: { index: number }) => (
   <tr className="border-b border-slate-50">
-    <td className="px-6 py-[18px]">
+    <td className="px-6 py-4.5">
       <div className="space-y-2">
         <div
           className="h-4 w-40 rounded-lg bg-slate-200 animate-pulse"
@@ -30,43 +30,43 @@ const SkeletonRow = ({ index }: { index: number }) => (
         />
       </div>
     </td>
-    <td className="px-4 py-[18px]">
+    <td className="px-4 py-4.5">
       <div
         className="h-7 w-20 rounded-xl bg-slate-200 animate-pulse"
         style={{ animationDelay: `${index * 60 + 40}ms` }}
       />
     </td>
-    <td className="px-4 py-[18px]">
+    <td className="px-4 py-4.5">
       <div
         className="h-7 w-20 rounded-xl bg-slate-200 animate-pulse"
         style={{ animationDelay: `${index * 60 + 50}ms` }}
       />
     </td>
-    <td className="px-4 py-[18px] text-right">
+    <td className="px-4 py-4.5 text-right">
       <div
         className="h-4 w-8 rounded-lg bg-slate-200 animate-pulse ml-auto"
         style={{ animationDelay: `${index * 60 + 60}ms` }}
       />
     </td>
-    <td className="px-4 py-[18px] text-right">
+    <td className="px-4 py-4.5 text-right">
       <div
         className="h-4 w-12 rounded-lg bg-slate-200 animate-pulse ml-auto"
         style={{ animationDelay: `${index * 60 + 70}ms` }}
       />
     </td>
-    <td className="px-4 py-[18px]">
+    <td className="px-4 py-4.5">
       <div
         className="h-6 w-16 rounded-full bg-slate-200 animate-pulse"
         style={{ animationDelay: `${index * 60 + 80}ms` }}
       />
     </td>
-    <td className="px-4 py-[18px]">
+    <td className="px-4 py-4.5">
       <div
         className="h-4 w-24 rounded-lg bg-slate-200 animate-pulse"
         style={{ animationDelay: `${index * 60 + 90}ms` }}
       />
     </td>
-    <td className="px-6 py-[18px]">
+    <td className="px-6 py-4.5">
       <div className="flex items-center justify-end gap-1">
         <div
           className="w-8 h-8 rounded-xl bg-slate-200 animate-pulse"
@@ -87,31 +87,31 @@ const SkeletonRow = ({ index }: { index: number }) => (
 
 const EmptyRow = () => (
   <tr className=" border-slate-50">
-    <td className="px-6 py-[18px]">
+    <td className="px-6 py-4.5">
       <div className="space-y-2">
         <div className="h-4" />
         <div className="h-3" />
       </div>
     </td>
-    <td className="px-4 py-[18px]">
+    <td className="px-4 py-4.5">
       <div className="h-7" />
     </td>
-    <td className="px-4 py-[18px]">
+    <td className="px-4 py-4.5">
       <div className="h-7" />
     </td>
-    <td className="px-4 py-[18px]">
+    <td className="px-4 py-4.5">
       <div className="h-4" />
     </td>
-    <td className="px-4 py-[18px]">
+    <td className="px-4 py-4.5">
       <div className="h-4" />
     </td>
-    <td className="px-4 py-[18px]">
+    <td className="px-4 py-4.5">
       <div className="h-6" />
     </td>
-    <td className="px-4 py-[18px]">
+    <td className="px-4 py-4.5">
       <div className="h-4" />
     </td>
-    <td className="px-6 py-[18px]">
+    <td className="px-6 py-4.5">
       <div className="h-8" />
     </td>
   </tr>
@@ -480,7 +480,7 @@ export default function ChallengesPage({ categories, levels }: Props) {
                           key={challenge.id}
                           className="border-b border-slate-50 hover:bg-slate-50 transition-colors"
                         >
-                          <td className="px-6 py-[18px]">
+                          <td className="px-6 py-4.5">
                             <div className="font-semibold text-slate-800">
                               {challenge.title}
                             </div>
@@ -488,34 +488,34 @@ export default function ChallengesPage({ categories, levels }: Props) {
                               {challenge.subtitle}
                             </div>
                           </td>
-                          <td className="px-4 py-[18px]">
+                          <td className="px-4 py-4.5">
                             <span
                               className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${categoryStyles[challenge.category as keyof typeof categoryStyles] ?? "bg-slate-50 text-slate-600 border-slate-200"}`}
                             >
                               {challenge.category}
                             </span>
                           </td>
-                          <td className="px-4 py-[18px]">
+                          <td className="px-4 py-4.5">
                             <span
                               className={`py-2 px-3 rounded-xl text-xs font-semibold border transition-all ${levelStyles[challenge.level as keyof typeof levelStyles] ?? "bg-slate-50 text-slate-600 border-slate-200"}`}
                             >
                               {challenge.level}
                             </span>
                           </td>
-                          <td className="px-4 py-[18px] text-right font-medium text-slate-700">
+                          <td className="px-4 py-4.5 text-right font-medium text-slate-700">
                             {challenge.days}
                           </td>
-                          <td className="px-4 py-[18px] text-right font-extrabold text-amber-600">
+                          <td className="px-4 py-4.5 text-right font-extrabold text-amber-600">
                             {challenge.rewardPoints}
                           </td>
-                          <td className="px-4 py-[18px]">
+                          <td className="px-4 py-4.5">
                             <span
                               className={`text-xs font-semibold px-2.5 py-1 rounded-full ${challenge.active ? "bg-emerald-100 text-emerald-600" : "bg-slate-100 text-slate-500"}`}
                             >
                               {challenge.active ? "active" : "inactive"}
                             </span>
                           </td>
-                          <td className="px-4 py-[18px] text-xs text-slate-400">
+                          <td className="px-4 py-4.5 text-xs text-slate-400">
                             {new Date(challenge.createdAt).toLocaleDateString(
                               "en-US",
                               {
@@ -525,16 +525,18 @@ export default function ChallengesPage({ categories, levels }: Props) {
                               },
                             )}
                           </td>
-                          <td className="px-6 py-[18px]">
+                          <td className="px-6 py-4.5">
                             <div className="flex items-center justify-end gap-1">
                               <Link href={`/challenge/${challenge.title}`}>
                                 <button className="p-2 rounded-xl text-slate-400 hover:bg-gray-100 hover:text-gray-500 transition-colors">
                                   <FaEye className="w-4 h-4" />
                                 </button>
                               </Link>
+                              <Link href={`/admin/challenges/${challenge.id}`}>
                               <button className="p-2 rounded-xl text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
                                 <Pencil className="w-4 h-4" />
                               </button>
+                              </Link>
                               <button className="p-2 rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-colors">
                                 <Trash2 className="w-4 h-4" />
                               </button>

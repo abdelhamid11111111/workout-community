@@ -8,7 +8,7 @@ export type FormType = {
   category: string;
   level: string;
   goals: string[];
-  images: (File | null)[];
+  images: (File | string | null)[];
 };
 
 export type challenge = {
