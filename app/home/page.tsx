@@ -49,7 +49,7 @@ const ChallengesHome = () => {
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
                 <Link
-                  href="/my-challenges"
+                  href="/mychallenges"
                   className="px-8 py-4 bg-white text-emerald-700 rounded-full font-semibold hover:bg-slate-100 shadow-lg hover:shadow-xl transition-all duration-300 text-base sm:text-lg"
                 >
                   View My Challenges

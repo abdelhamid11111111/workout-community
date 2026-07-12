@@ -1,97 +1,42 @@
+"use client";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Filter, Calendar, Trophy, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import { ApiRes, challenge, pagination } from "../../types/types";
+import { useSearchParams } from "next/navigation";
 
-const allChallenges = [
-  {
-    id: 1,
-    title: "30-Day Full Body Transformation",
-    description:
-      "Complete daily workouts targeting all major muscle groups for a comprehensive fitness transformation.",
-    category: "Strength",
-    difficulty: "Intermediate",
-    status: "active",
-    image:
-      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80",
-    participants: 1247,
-    duration: "30 days",
-    rewardPoints: 750,
-  },
-  {
-    id: 2,
-    title: "Morning Yoga Flow Challenge",
-    description:
-      "Start each day with energizing yoga sequences designed to improve flexibility and mental clarity.",
-    category: "Yoga",
-    difficulty: "Beginner",
-    status: "active",
-    image:
-      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&q=80",
-    participants: 892,
-    duration: "21 days",
-    rewardPoints: 500,
-  },
-  {
-    id: 3,
-    title: "HIIT Cardio Blast",
-    description:
-      "High-intensity interval training sessions to maximize calorie burn and boost metabolism.",
-    category: "HIIT",
-    difficulty: "Advanced",
-    status: "active",
-    image:
-      "https://images.unsplash.com/photo-1517836357463-d25ddfcbf022?w=400&q=80",
-    participants: 1543,
-    duration: "14 days",
-    rewardPoints: 600,
-  },
-  {
-    id: 4,
-    title: "Core Strength Builder",
-    description:
-      "Focused core workouts to develop a strong, stable midsection for improved athletic performance.",
-    category: "Strength",
-    difficulty: "Intermediate",
-    status: "active",
-    image:
-      "https://images.unsplash.com/photo-1518611505868-48510c2e2e80?w=400&q=80",
-    participants: 967,
-    duration: "28 days",
-    rewardPoints: 550,
-  },
-  {
-    id: 5,
-    title: "5K Running Program",
-    description:
-      "Progressive running plan to help you complete a 5K with confidence and speed.",
-    category: "Cardio",
-    difficulty: "Beginner",
-    status: "active",
-    image:
-      "https://images.unsplash.com/photo-1552674605-5defe6aa44bb?w=400&q=80",
-    participants: 2114,
-    duration: "42 days",
-    rewardPoints: 800,
-  },
-  {
-    id: 6,
-    title: "Flexibility & Mobility",
-    description:
-      "Daily stretching routines to enhance range of motion and reduce muscle tightness.",
-    category: "Flexibility",
-    difficulty: "Beginner",
-    status: "upcoming",
-    image:
-      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&q=80",
-    participants: 745,
-    duration: "30 days",
-    rewardPoints: 450,
-  },
-];
+
 
 const Challenges = () => {
+  const [allChallenges, setChallenges] = useState<challenge[]>([]);
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [paginationInfo, setPaginationInfo] = useState<pagination | null>(null);
+  const searchParams = useSearchParams();
+
+  const fetchChallenges = async (params: URLSearchParams) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/challenge?${params.toString()}`);
+      const data: ApiRes = await res.json();
+      setChallenges(data.data);
+      setPaginationInfo(data.pagination);
+    } catch (error) {
+      console.error("Error ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setSearch(searchParams.get("search") || "");
+    setCurrentPage(Number(searchParams.get("page") || "1"));
+    fetchChallenges(searchParams);
+  }, [searchParams]);
+
   return (
     <div>
       {/* Search - Categories */}
@@ -158,7 +103,7 @@ const Challenges = () => {
               {/* Image */}
               <div className="relative h-64 lg:h-72 w-full bg-slate-200 overflow-hidden">
                 <Image
-                  src={challenge.image}
+                  src={challenge.imgs[0]}
                   alt={challenge.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -166,7 +111,7 @@ const Challenges = () => {
                 />
                 {/* Badges */}
                 <div className="absolute top-4 left-4 flex gap-2.5">
-                  <span
+                  {/* <span
                     className={`px-4 py-1.5 rounded-full text-xs lg:text-sm font-semibold text-white shadow-sm ${
                       challenge.status === "active"
                         ? "bg-emerald-600"
@@ -177,10 +122,10 @@ const Challenges = () => {
                   >
                     {challenge.status.charAt(0).toUpperCase() +
                       challenge.status.slice(1)}
-                  </span>
-                  <span className="px-4 py-1.5 rounded-full text-xs lg:text-sm font-semibold text-white bg-amber-500 shadow-sm">
+                  </span> */}
+                  {/* <span className="px-4 py-1.5 rounded-full text-xs lg:text-sm font-semibold text-white bg-amber-500 shadow-sm">
                     Featured
-                  </span>
+                  </span> */}
                 </div>
               </div>
 
@@ -201,7 +146,7 @@ const Challenges = () => {
                     {challenge.category}
                   </span>
                   <span className="px-4 py-1.5 rounded-full text-sm font-medium bg-slate-100 text-slate-700">
-                    {challenge.difficulty}
+                    {challenge.level}
                   </span>
                 </div>
 
@@ -209,7 +154,7 @@ const Challenges = () => {
                 <div className="space-y-3 mb-8 text-slate-700 text-base">
                   <div className="flex items-center gap-3">
                     <Calendar className="w-5 h-5 text-slate-500" />
-                    <span>{challenge.duration}</span>
+                    <span>{challenge.days}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Trophy className="w-5 h-5 text-slate-500" />
@@ -218,7 +163,7 @@ const Challenges = () => {
                 </div>
 
                 <Link
-                  href={`/challenge/${challenge.id}`}
+                  href={`/challenge/${challenge.title}`}
                   className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg text-base group-hover:translate-y-[-2px]"
                 >
                   View Details

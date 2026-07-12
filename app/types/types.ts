@@ -23,7 +23,7 @@ export type challenge = {
   category: string;
   level: string;
   goals: string[];
-  imgs: (File | null)[];
+  imgs: string[];
 }
 
 export type ApiRes = {
