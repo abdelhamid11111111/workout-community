@@ -14,9 +14,13 @@ import Image from "next/image";
 import { ApiRes, challenge, pagination } from "../../types/types";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { span } from "framer-motion/client";
 
-const Challenges = () => {
+type Props = {
+  categories: string[];
+  levels: string[];
+};
+
+const Challenges = ({ categories, levels }: Props) => {
   const [allChallenges, setChallenges] = useState<challenge[]>([]);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -99,36 +103,99 @@ const Challenges = () => {
               <input
                 type="search"
                 placeholder="Find a challenge..."
+                value={search}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const params = new URLSearchParams(searchParams.toString());
+                  if (value) params.set("search", value);
+                  else params.delete("search");
+                  params.set("page", "1");
+                  router.push(`/?${params.toString()}`, { scroll: false });
+                }}
                 className="w-full pl-12 pr-5 py-4 bg-slate-50 rounded-xl border border-slate-200 
-                     text-base placeholder-slate-400
-                     focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+           text-base text-mauve-700
+            focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
-            {/* Filter – big touch target */}
-            <button
-              className="group flex items-center justify-center gap-3 px-6 py-4 bg-emerald-50 
-                         hover:bg-emerald-100 rounded-xl border border-emerald-100 
-                         transition-colors sm:min-w-[160px]"
-            >
-              <Filter className="h-5.5 w-5.5 text-emerald-700 group-hover:text-emerald-800" />
-              <span className="font-medium text-emerald-800 text-base whitespace-nowrap">
-                All Categories
-              </span>
-              <svg
-                className="h-4 w-4 text-emerald-700"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
+            {/* Filters group */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Category filter */}
+              <div className="relative sm:min-w-[180px]">
+                <select
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const params = new URLSearchParams(searchParams.toString());
+                    if (value) params.set("category", value);
+                    else params.delete("category");
+                    params.set("page", "1");
+                    router.push(`/?${params.toString()}`, { scroll: false });
+                  }}
+                  className="w-full appearance-none pl-11 pr-10 py-4 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 rounded-xl text-base text-emerald-800 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((cat, i) => (
+                    <option key={i} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+
+                <Filter className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-700" />
+
+                <svg
+                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-700"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+
+              {/* Level filter */}
+              <div className="relative sm:min-w-[180px]">
+                <select
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const params = new URLSearchParams(searchParams.toString());
+                    if (value) params.set("level", value);
+                    else params.delete("level");
+                    params.set("page", "1");
+                    router.push(`/?${params.toString()}`, { scroll: false });
+                  }}
+                  className="w-full appearance-none pl-11 pr-10 py-4 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 rounded-xl text-base text-emerald-800 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                >
+                  <option value="">All Levels</option>
+                  {levels.map((level, i) => (
+                    <option key={i} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
+
+                <Filter className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-700" />
+
+                <svg
+                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-700"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -157,24 +224,6 @@ const Challenges = () => {
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
-                {/* Badges */}
-                <div className="absolute top-4 left-4 flex gap-2.5">
-                  {/* <span
-                    className={`px-4 py-1.5 rounded-full text-xs lg:text-sm font-semibold text-white shadow-sm ${
-                      challenge.status === "active"
-                        ? "bg-emerald-600"
-                        : challenge.status === "upcoming"
-                          ? "bg-amber-500"
-                          : "bg-slate-600"
-                    }`}
-                  >
-                    {challenge.status.charAt(0).toUpperCase() +
-                      challenge.status.slice(1)}
-                  </span> */}
-                  {/* <span className="px-4 py-1.5 rounded-full text-xs lg:text-sm font-semibold text-white bg-amber-500 shadow-sm">
-                    Featured
-                  </span> */}
-                </div>
               </div>
 
               {/* Content */}

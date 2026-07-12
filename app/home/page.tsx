@@ -8,12 +8,15 @@ import FeaturedChallenge from "../components/ui/FeaturedChallenge";
 import Challenges from "../components/ui/Challenges";
 import Footer from "../components/ui/Footer";
 import CTAFooter from "../components/ui/CTAFooter";
+import { Categories, Level } from "@/generated/prisma/enums"
 
 
 
 const ChallengesHome = () => {
  
  
+   const categories = Object.values(Categories)
+   const levels = Object.values(Level)
 
 
   return (
@@ -73,7 +76,7 @@ const ChallengesHome = () => {
       <FeaturedChallenge/>
 
       {/* Search - Categories - Challenges - Pagination */}
-      <Challenges/>
+      <Challenges categories={categories} levels={levels} />
 
       {/* CTA Footer – richer gradient, better contrast */}
       <CTAFooter/>
