@@ -2,12 +2,19 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Calendar, Trophy, ArrowRight } from "lucide-react";
+import {
+  Search,
+  Filter,
+  Calendar,
+  Trophy,
+  ArrowRight,
+  Router,
+} from "lucide-react";
 import Image from "next/image";
 import { ApiRes, challenge, pagination } from "../../types/types";
 import { useSearchParams } from "next/navigation";
-
-
+import { useRouter } from "next/navigation";
+import { span } from "framer-motion/client";
 
 const Challenges = () => {
   const [allChallenges, setChallenges] = useState<challenge[]>([]);
@@ -16,6 +23,7 @@ const Challenges = () => {
   const [loading, setLoading] = useState(true);
   const [paginationInfo, setPaginationInfo] = useState<pagination | null>(null);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const fetchChallenges = async (params: URLSearchParams) => {
     setLoading(true);
@@ -36,6 +44,46 @@ const Challenges = () => {
     setCurrentPage(Number(searchParams.get("page") || "1"));
     fetchChallenges(searchParams);
   }, [searchParams]);
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && paginationInfo && paginationInfo.totalPages >= page) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("page", String(page));
+      router.push(`/?${params.toString()}`, { scroll: false });
+    }
+  };
+
+  const generatePages = () => {
+    if (!paginationInfo) return [];
+    const { currentPage, totalPages } = paginationInfo;
+    const items: (string | number)[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) items.push(i);
+    } else {
+      items.push(1);
+      if (currentPage <= 3) {
+        items.push(2, 3, 4, "...", totalPages);
+      } else if (currentPage > totalPages - 2) {
+        items.push(
+          "...",
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages,
+        );
+      } else {
+        items.push(
+          "...",
+          currentPage - 1,
+          currentPage,
+          currentPage + 1,
+          "...",
+          totalPages,
+        );
+      }
+    }
+    return items;
+  };
 
   return (
     <div>
@@ -176,22 +224,51 @@ const Challenges = () => {
       </div>
 
       {/* Pagination – cleaner, more modern */}
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-10">
-        <div className="flex justify-center gap-3">
-          <button className="px-6 py-3 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium transition-colors">
-            Previous
-          </button>
-          <button className="px-6 py-3 rounded-2xl bg-emerald-600 text-white font-semibold shadow-md">
-            1
-          </button>
-          <button className="px-6 py-3 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium transition-colors">
-            2
-          </button>
-          <button className="px-6 py-3 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium transition-colors">
-            Next
-          </button>
+      {!loading && paginationInfo && paginationInfo.totalPages > 1 && (
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-10">
+          <div className="flex justify-center gap-3">
+            <button
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={!paginationInfo.hasPrevPage}
+              className={`px-6 py-3 rounded-2xl border 
+                font-medium 
+               transition-colors ${!paginationInfo.hasPrevPage ? "text-slate-300 border-slate-200 cursor-not-allowed" : "text-slate-600 border-slate-300 hover:bg-slate-100"}`}
+            >
+              Previous
+            </button>
+
+            {generatePages().map((pageNum, index) => (
+              <React.Fragment key={index}>
+                {pageNum === "..." ? (
+                  <button className=" px-6 py-3 rounded-2xl text-slate-400">
+                    •••
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => goToPage(pageNum as number)}
+                    className={`px-6 py-3 rounded-2xl
+              font-semibold 
+             ${pageNum === currentPage ? "text-white bg-emerald-600" : " text-slate-600"}
+             shadow-md`}
+                  >
+                    {pageNum}
+                  </button>
+                )}
+              </React.Fragment>
+            ))}
+
+            <button
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={!paginationInfo.hasNextPage}
+              className={`px-6 py-3 rounded-2xl border 
+                font-medium 
+               transition-colors ${!paginationInfo.hasNextPage ? "text-slate-300 border-slate-200 cursor-not-allowed" : "text-slate-600 border-slate-300 hover:bg-slate-100"}`}
+            >
+              Next
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
