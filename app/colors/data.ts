@@ -14,3 +14,20 @@ export const categoryStyles = {
   Sports: "bg-sky-100    text-sky-600    border-sky-300",
   Running: "bg-teal-100   text-teal-600   border-teal-300",
 };
+
+export const levelStylesNoBg = {
+  beginner: "text-emerald-700 border-emerald-300",
+  intermediate: " text-amber-700   border-amber-300",
+  advanced: "  text-rose-700    border-rose-300",
+};
+
+export const categoryStylesNoBg = {
+  Cardio: "text-red-600    border-red-300",
+  Strength: "text-indigo-600 border-indigo-300",
+  Yoga: " text-purple-600 border-purple-300",
+  HIIT: "text-orange-600 border-orange-300",
+  Pilates: "  text-pink-600   border-pink-300",
+  Stretching: " text-lime-600   border-lime-300",
+  Sports: "  text-sky-600    border-sky-300",
+  Running: " text-teal-600   border-teal-300",
+};

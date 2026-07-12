@@ -1,21 +1,56 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { Users, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+"use client";
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  Trophy,
+} from "lucide-react";
 import Image from "next/image";
+import { challenge } from "@/app/types/types";
+import { levelStyles, categoryStyles } from "../../colors/data";
 
-const featuredChallenge = {
-  title: "Morning Yoga Flow Challenge",
-  description:
-    "Start each day with energizing yoga sequences designed to improve flexibility and mental clarity.",
-  category: "Yoga",
-  tag: "Featured",
-  participants: 892,
-  duration: "21 days",
-  image:
-    "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80",
-};
+
+
+const SLIDE_DURATION = 6000; // ms
 
 const FeaturedChallenge = () => {
+  const [challenges, setChallenges] = useState<challenge[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("/api/FeaturedChallenge");
+        const data = await res.json();
+        setChallenges(data);
+      } catch (error) {
+        console.error("error: ", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (challenges.length === 0 || isPaused) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % challenges.length);
+    }, SLIDE_DURATION);
+    return () => clearInterval(interval);
+  }, [challenges.length, isPaused]);
+
+  const goToPrev = () =>
+    setCurrentIndex(
+      (prev) => (prev - 1 + challenges.length) % challenges.length,
+    );
+  const goToNext = () =>
+    setCurrentIndex((prev) => (prev + 1) % challenges.length);
+
+  const active = challenges[currentIndex];
+
   return (
     <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-10 lg:py-16">
       <motion.div
@@ -27,56 +62,152 @@ const FeaturedChallenge = () => {
           Featured Challenge
         </h2>
 
-        <div className="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-100">
-          <div className="relative h-[380px] xs:h-[420px] sm:h-[480px] lg:h-[520px] bg-slate-200">
-            <Image
-              src={featuredChallenge.image}
-              alt={featuredChallenge.title}
-              fill
-              className="object-cover brightness-[0.92]"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent/30" />
+        <div
+          className="group relative rounded-[32px] overflow-hidden shadow-[0_24px_60px_-20px_rgba(15,23,42,0.35)] h-[460px] xs:h-[500px] sm:h-[560px] lg:h-[620px] bg-slate-900"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, scale: 1.04 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={active?.imgs[0] ?? "/placeholder.jpg"}
+                alt={active?.title ?? "Challenge image"}
+                fill
+                className="object-cover"
+                priority
+              />
+            </motion.div>
+          </AnimatePresence>
 
-            {/* Navigation buttons – slightly larger on mobile */}
-            <button className="absolute left-4 top-1/2 -translate-y-1/2 p-3.5 bg-black/35 backdrop-blur-lg hover:bg-black/55 rounded-full transition-all z-10 md:left-6">
-              <ChevronLeft className="w-6 h-6 md:w-7 md:h-7 text-white" />
-            </button>
-            <button className="absolute right-4 top-1/2 -translate-y-1/2 p-3.5 bg-black/35 backdrop-blur-lg hover:bg-black/55 rounded-full transition-all z-10 md:right-6">
-              <ChevronRight className="w-6 h-6 md:w-7 md:h-7 text-white" />
-            </button>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
 
-            {/* Content – better spacing & sizing on mobile */}
-            <div className="absolute bottom-0 left-0 right-0 p-5 xs:p-6 sm:p-8 lg:p-10 text-white">
-              <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-4.5xl font-extrabold mb-3 xs:mb-4 leading-tight tracking-tight">
-                {featuredChallenge.title}
-              </h2>
-
-              <p className="text-sm xs:text-base sm:text-lg text-white/90 mb-5 xs:mb-6 sm:mb-8 line-clamp-3 sm:line-clamp-2">
-                {featuredChallenge.description}
-              </p>
-
-              <div className="flex flex-wrap gap-4 xs:gap-6 text-xs xs:text-sm sm:text-base mb-6 xs:mb-8">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4.5 h-4.5 xs:w-5 xs:h-5" />
-                  <span>{featuredChallenge.participants} participants</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4.5 h-4.5 xs:w-5 xs:h-5" />
-                  <span>{featuredChallenge.duration}</span>
-                </div>
+          {/* Progress segments */}
+          <div className="absolute top-6 left-6 right-6 z-30 flex gap-1.5">
+            {challenges.map((_, index) => (
+              <div
+                key={index}
+                className="relative h-[3px] flex-1 rounded-full bg-white/25 overflow-hidden"
+              >
+                {index < currentIndex && (
+                  <div className="absolute inset-0 bg-white" />
+                )}
+                {index === currentIndex && (
+                  <div
+                    key={`${currentIndex}-${isPaused}`}
+                    className="absolute inset-0 bg-white origin-left"
+                    style={{
+                      animation: `featuredFill ${SLIDE_DURATION}ms linear forwards`,
+                      animationPlayState: isPaused ? "paused" : "running",
+                    }}
+                  />
+                )}
               </div>
-            </div>
+            ))}
           </div>
 
-          {/* Carousel indicators */}
-          <div className="flex justify-center gap-3 py-5 bg-slate-50">
-            <button className="h-3 w-10 rounded-full bg-emerald-600"></button>
-            <button className="h-3 w-3 rounded-full bg-slate-300 hover:bg-slate-400 transition-colors"></button>
-            <button className="h-3 w-3 rounded-full bg-slate-300 hover:bg-slate-400 transition-colors"></button>
+          {/* Points badge */}
+          {active?.rewardPoints !== undefined && (
+            <div className="absolute top-12 right-6 z-30 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20">
+              <Trophy className="w-4 h-4 text-amber-300" />
+              <span className="text-sm font-bold text-white">
+                {active.rewardPoints} pts
+              </span>
+            </div>
+          )}
+
+          {/* Nav arrows */}
+          <button
+            onClick={goToPrev}
+            aria-label="Previous challenge"
+            className="absolute left-5 top-1/2 -translate-y-1/2 p-3 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 rounded-full transition-all z-30 opacity-0 group-hover:opacity-100 md:left-7"
+          >
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+          <button
+            onClick={goToNext}
+            aria-label="Next challenge"
+            className="absolute right-5 top-1/2 -translate-y-1/2 p-3 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 rounded-full transition-all z-30 opacity-0 group-hover:opacity-100 md:right-7"
+          >
+            <ChevronRight className="w-5 h-5 text-white" />
+          </button>
+
+          {/* Content — everything lives on the image */}
+          <div className="absolute inset-x-0 bottom-0 z-20 p-6 xs:p-7 sm:p-10 lg:p-12">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  {active?.category && (
+                    <span
+                      className={`px-3 py-1 rounded-full border backdrop-blur-md text-[11px] font-semibold uppercase tracking-wide ${
+                        categoryStyles[active.category as keyof typeof categoryStyles] ??
+                        "bg-white/10 text-white border-white/20"
+                      }`}
+                    >
+                      {active.category}
+                    </span>
+                  )}
+                  {active?.level && (
+                    <span
+                      className={`px-3 py-1 rounded-full border backdrop-blur-md text-[11px] font-semibold uppercase tracking-wide ${
+                        levelStyles[active.level as keyof typeof levelStyles] ??
+                        "bg-white/10 text-white border-white/20"
+                      }`}
+                    >
+                      {active.level}
+                    </span>
+                  )}
+                  {active?.days && (
+                    <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[11px] font-semibold text-white">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {active.days}-day challenge
+                    </span>
+                  )}
+                </div>
+
+                <h2 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-4 leading-[1.02] tracking-tight max-w-3xl">
+                  {active?.title}
+                </h2>
+
+                <p className="text-sm xs:text-base sm:text-lg text-white/70 mb-7 max-w-xl leading-relaxed line-clamp-2">
+                  {active?.description}
+                </p>
+
+                {/* <button className="inline-flex items-center gap-2.5 pl-6 pr-2.5 py-2.5 rounded-full bg-white text-slate-900 text-sm font-semibold hover:bg-white/90 transition-all group/btn">
+                  View challenge
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900 text-white group-hover/btn:translate-x-0.5 transition-transform duration-300">
+                    <ArrowRight className="w-4 h-4" />
+                  </span>
+                </button> */}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </motion.div>
+
+      <style jsx>{`
+        @keyframes featuredFill {
+          from {
+            width: 0%;
+          }
+          to {
+            width: 100%;
+          }
+        }
+      `}</style>
     </div>
   );
 };
