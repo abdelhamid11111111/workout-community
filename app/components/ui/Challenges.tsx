@@ -10,10 +10,13 @@ import {
   ArrowRight,
   Router,
 } from "lucide-react";
+import { SearchX } from "lucide-react";
 import Image from "next/image";
 import { ApiRes, challenge, pagination } from "../../types/types";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { EmptyChallenges } from "./EmptyState";
+import { ChallengeCardSkeleton } from "./LoadingState";
 
 type Props = {
   categories: string[];
@@ -87,6 +90,10 @@ const Challenges = ({ categories, levels }: Props) => {
       }
     }
     return items;
+  };
+
+  const clearFilters = () => {
+    router.push("/", { scroll: false });
   };
 
   return (
@@ -207,71 +214,90 @@ const Challenges = ({ categories, levels }: Props) => {
           All Challenges
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {allChallenges.map((challenge) => (
-            <motion.div
-              key={challenge.id}
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 border border-slate-100 group"
-            >
-              {/* Image */}
-              <div className="relative h-64 lg:h-72 w-full bg-slate-200 overflow-hidden">
-                <Image
-                  src={challenge.imgs[0]}
-                  alt={challenge.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              </div>
-
-              {/* Content */}
-              <div className="p-6 lg:p-8">
-                <h3 className="text-xl lg:text-2xl font-bold text-slate-900 mb-3 line-clamp-1">
-                  {challenge.title}
-                </h3>
-
-                {/* Description – truncated to ~1.5 lines max */}
-                <p className="text-slate-600 mb-6 lg:mb-8 text-base leading-relaxed line-clamp-2">
-                  {challenge.description}
-                </p>
-
-                {/* Category + Difficulty */}
-                <div className="flex flex-wrap gap-2.5 mb-6">
-                  <span className="px-4 py-1.5 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
-                    {challenge.category}
-                  </span>
-                  <span className="px-4 py-1.5 rounded-full text-sm font-medium bg-slate-100 text-slate-700">
-                    {challenge.level}
-                  </span>
-                </div>
-
-                {/* Stats – without participants */}
-                <div className="space-y-3 mb-8 text-slate-700 text-base">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-slate-500" />
-                    <span>{challenge.days}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Trophy className="w-5 h-5 text-slate-500" />
-                    <span>{challenge.rewardPoints} reward points</span>
-                  </div>
-                </div>
-
-                <Link
-                  href={`/challenge/${challenge.title}`}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg text-base group-hover:translate-y-[-2px]"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 lg:gap-9">
+          {loading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <ChallengeCardSkeleton key={i} index={i} />
+            ))
+          ) : allChallenges.length === 0 ? (
+            <EmptyChallenges onClear={clearFilters} />
+          ) : (
+            allChallenges.map((challenge, index) => (
+              <Link
+                key={challenge.id}
+                href={`/challenge/${challenge.title}`}
+                className="group block"
+              >
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: index * 0.06,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="relative bg-white rounded-[28px] overflow-hidden border border-slate-100 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_48px_-16px_rgba(15,23,42,0.18)] hover:-translate-y-1.5 transition-all duration-500 ease-out"
                 >
-                  View Details
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-              </div>
-            </motion.div>
-          ))}
+                  {/* Image */}
+                  <div className="relative h-64 lg:h-72 w-full bg-slate-200 overflow-hidden">
+                    <Image
+                      src={challenge.imgs[0]}
+                      alt={challenge.title}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                    {/* gradient for badge legibility */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/0 to-slate-900/10" />
+
+                    {/* Reward badge */}
+                    <div className="absolute top-5 right-5 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-sm font-semibold">
+                      <Trophy className="w-3.5 h-3.5 text-amber-300" />
+                      {challenge.rewardPoints} pts
+                    </div>
+
+                    {/* Duration tag */}
+                    <div className="absolute bottom-5 left-5 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-sm font-semibold">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {challenge.days}-day challenge
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6 lg:p-7">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xs font-bold uppercase tracking-widest text-emerald-600">
+                        {challenge.category}
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-slate-300" />
+                      <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                        {challenge.level}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl lg:text-2xl font-bold text-slate-900 mb-2.5 tracking-tight line-clamp-1">
+                      {challenge.title}
+                    </h3>
+
+                    <p className="text-slate-500 text-[15px] leading-relaxed line-clamp-2 mb-6">
+                      {challenge.description}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-5 border-t border-slate-100">
+                      <span className="text-sm font-semibold text-slate-700">
+                        View challenge
+                      </span>
+                      <span className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-300" />
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+            ))
+          )}
         </div>
       </div>
-
       {/* Pagination – cleaner, more modern */}
       {!loading && paginationInfo && paginationInfo.totalPages > 1 && (
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-10">
