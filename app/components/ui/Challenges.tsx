@@ -113,8 +113,8 @@ const Challenges = ({ categories, levels }: Props) => {
                   router.push(`/?${params.toString()}`, { scroll: false });
                 }}
                 className="w-full pl-12 pr-5 py-4 bg-slate-50 rounded-xl border border-slate-200 
-           text-base text-mauve-700
-            focus:border-emerald-500 focus:outline-none"
+                      text-base text-mauve-700
+                      focus:outline-none"
               />
             </div>
 
