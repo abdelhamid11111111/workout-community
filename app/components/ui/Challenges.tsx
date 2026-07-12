@@ -10,12 +10,12 @@ import {
   ArrowRight,
   Router,
 } from "lucide-react";
-import { SearchX } from "lucide-react";
 import Image from "next/image";
 import { ApiRes, challenge, pagination } from "../../types/types";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { EmptyChallenges } from "./EmptyState";
+import { levelStyles, categoryStyles } from "../../colors/data";
 import { ChallengeCardSkeleton } from "./LoadingState";
 
 type Props = {
@@ -264,18 +264,29 @@ const Challenges = ({ categories, levels }: Props) => {
                   </div>
 
                   {/* Content */}
-                  <div className="p-6 lg:p-7">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xs font-bold uppercase tracking-widest text-emerald-600">
+                  <div className="p-6 lg:p-7 [transform:translateZ(0)]">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span
+                        className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold uppercase tracking-wide ${
+                          categoryStyles[
+                            challenge.category as keyof typeof categoryStyles
+                          ] ?? "bg-slate-50 text-slate-600 border-slate-200"
+                        }`}
+                      >
                         {challenge.category}
                       </span>
-                      <span className="w-1 h-1 rounded-full bg-slate-300" />
-                      <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                      <span
+                        className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold uppercase tracking-wide ${
+                          levelStyles[
+                            challenge.level as keyof typeof levelStyles
+                          ] ?? "bg-slate-50 text-slate-600 border-slate-200"
+                        }`}
+                      >
                         {challenge.level}
                       </span>
                     </div>
 
-                    <h3 className="text-xl lg:text-2xl font-bold text-slate-900 mb-2.5 tracking-tight line-clamp-1">
+                    <h3 className="text-xl lg:text-2xl font-bold text-slate-900 mb-2.5 tracking-tight line-clamp-1 antialiased [text-rendering:optimizeLegibility] [font-synthesis:none]">
                       {challenge.title}
                     </h3>
 
