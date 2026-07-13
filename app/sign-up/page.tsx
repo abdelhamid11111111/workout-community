@@ -1,25 +1,61 @@
 'use client'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Dumbbell, Zap, Trophy } from 'lucide-react'
 import { useState } from 'react'
 
 export default function SignUp() {
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+
+    if (!username || !email || !password || !confirmPassword) {
+      setError('Please fill in all fields.')
+      return
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.')
+      return
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
+    if (!agreedToTerms) {
+      setError('You must agree to the Terms & Conditions.')
+      return
+    }
+
+    // Save sign-up data temporarily, don't hit backend yet
+    sessionStorage.setItem(
+      'pendingSignUp',
+      JSON.stringify({ username, email, password })
+    )
+
+    router.push('/onboardingprofile')
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
 
       {/* Left panel — branding */}
       <div className="hidden lg:flex flex-col justify-between w-[480px] shrink-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-teal-700 p-12 relative overflow-hidden">
-
-        {/* Background circles */}
         <div className="absolute top-[-80px] right-[-80px] w-[320px] h-[320px] rounded-full bg-white/5" />
         <div className="absolute bottom-[-60px] left-[-60px] w-[260px] h-[260px] rounded-full bg-white/5" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-white/[0.03]" />
 
-        {/* Logo */}
         <div className="relative z-10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
@@ -29,7 +65,6 @@ export default function SignUp() {
           </div>
         </div>
 
-        {/* Center content */}
         <div className="relative z-10 space-y-8">
           <div>
             <h2 className="text-4xl font-extrabold text-white leading-tight tracking-tight">
@@ -40,7 +75,6 @@ export default function SignUp() {
             </p>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-white/10 rounded-2xl p-4 text-center">
               <div className="text-2xl font-extrabold text-white">1.2K</div>
@@ -56,7 +90,6 @@ export default function SignUp() {
             </div>
           </div>
 
-          {/* Feature list */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
@@ -79,7 +112,6 @@ export default function SignUp() {
           </div>
         </div>
 
-        {/* Bottom */}
         <div className="relative z-10 text-teal-200 text-xs">
           © 2026 FitApp. All rights reserved.
         </div>
@@ -94,7 +126,6 @@ export default function SignUp() {
           className="w-full max-w-md"
         >
 
-          {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
             <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
               <span className="text-white font-extrabold text-xs tracking-tight">FIT</span>
@@ -102,7 +133,6 @@ export default function SignUp() {
             <span className="text-slate-900 font-extrabold text-base tracking-tight">FitApp</span>
           </div>
 
-          {/* Heading */}
           <div className="mb-8">
             <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900">
               Create your account
@@ -112,11 +142,15 @@ export default function SignUp() {
             </p>
           </div>
 
-          {/* Form card */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 lg:p-8">
-            <form className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5">
 
-              {/* Username */}
+              {error && (
+                <div className="text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                  {error}
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-widest mb-2">
                   Username
@@ -125,13 +159,14 @@ export default function SignUp() {
                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     placeholder="e.g. sara_fit"
                     className="w-full pl-10 pr-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent focus:bg-white transition-all"
                   />
                 </div>
               </div>
 
-              {/* Email */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-widest mb-2">
                   Email Address
@@ -140,13 +175,14 @@ export default function SignUp() {
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="your@email.com"
                     className="w-full pl-10 pr-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent focus:bg-white transition-all"
                   />
                 </div>
               </div>
 
-              {/* Password */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-widest mb-2">
                   Password
@@ -155,6 +191,8 @@ export default function SignUp() {
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="Create a strong password"
                     className="w-full pl-10 pr-12 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent focus:bg-white transition-all"
                   />
@@ -168,7 +206,6 @@ export default function SignUp() {
                 </div>
               </div>
 
-              {/* Confirm Password */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-widest mb-2">
                   Confirm Password
@@ -177,6 +214,8 @@ export default function SignUp() {
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm your password"
                     className="w-full pl-10 pr-12 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent focus:bg-white transition-all"
                   />
@@ -190,11 +229,12 @@ export default function SignUp() {
                 </div>
               </div>
 
-              {/* Terms */}
               <div className="flex items-start gap-3 pt-1">
                 <input
                   type="checkbox"
                   id="terms"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
                   className="w-4 h-4 mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-400"
                 />
                 <label htmlFor="terms" className="text-xs text-slate-500 leading-relaxed">
@@ -209,19 +249,17 @@ export default function SignUp() {
                 </label>
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm mt-2"
               >
-                Create Account
+                Continue
                 <ArrowRight className="w-4 h-4" />
               </button>
 
             </form>
           </div>
 
-          {/* Sign in link */}
           <p className="text-center text-sm text-slate-500 mt-6">
             Already have an account?{' '}
             <Link href="/sign-in" className="text-emerald-600 hover:text-emerald-700 font-semibold">
