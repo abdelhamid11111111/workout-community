@@ -2,8 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import cloudinary from "@/lib/cloudinary";
 import { Level, Categories } from "../../../../generated/prisma/enums";
+import { auth } from "@/lib/auth";
 
-export async function POST(req: Request) {
+
+async function requireAdmin(req: NextRequest) {
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session || session.user.role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return null;
+}
+
+
+export async function POST(req: NextRequest) {
+
+  const authError = await requireAdmin(req);
+  if (authError) return authError;
+
+
   try {
     const formData = await req.formData();
     const title = formData.get("title") as string;
@@ -117,6 +133,9 @@ export async function POST(req: Request) {
 const items_per_page = 6;
 
 export async function GET(req: NextRequest) {
+    const authError = await requireAdmin(req);
+  if (authError) return authError;
+
   try {
     const searchParams = req.nextUrl.searchParams;
     const page = Number(searchParams.get("page") || "1");

@@ -2,11 +2,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import cloudinary from "@/lib/cloudinary";
 import { Level, Categories } from "../../../../../generated/prisma/enums";
+import { auth } from "@/lib/auth";
+
+
+
+async function requireAdmin(req: NextRequest) {
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session || session.user.role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return null;
+}
+
+
+
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+    const authError = await requireAdmin(req);
+  if (authError) return authError;
+
   try {
     const { id } = await params;
     const fetchChallenge = await prisma.challenge.findUnique({
@@ -20,9 +37,12 @@ export async function GET(
 }
 
 export async function PUT(
-  req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+    const authError = await requireAdmin(req);
+  if (authError) return authError;
+
   try {
     const { id } = await params;
 
@@ -96,6 +116,9 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+    const authError = await requireAdmin(req);
+  if (authError) return authError;
+
   try {
     const { id } = await params;
     

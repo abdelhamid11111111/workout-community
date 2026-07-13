@@ -14,7 +14,7 @@ import { levelStyles, categoryStyles } from "../../colors/data";
 
 
 
-const SLIDE_DURATION = 6000; // ms
+const SLIDE_DURATION = 6000; 
 
 const FeaturedChallenge = () => {
   const [challenges, setChallenges] = useState<challenge[]>([]);
@@ -35,19 +35,22 @@ const FeaturedChallenge = () => {
   }, []);
 
   useEffect(() => {
+
     if (challenges.length === 0 || isPaused) return;
+
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % challenges.length);
+
+      // Go to the next slide number, and if you were on the last slide, loop back to the first one.
+      setCurrentIndex((prev) => (prev + 1) % challenges.length); 
     }, SLIDE_DURATION);
-    return () => clearInterval(interval);
+
+    return () => clearInterval(interval); //
+
   }, [challenges.length, isPaused]);
 
-  const goToPrev = () =>
-    setCurrentIndex(
-      (prev) => (prev - 1 + challenges.length) % challenges.length,
-    );
-  const goToNext = () =>
-    setCurrentIndex((prev) => (prev + 1) % challenges.length);
+  const goToPrev = () => setCurrentIndex((prev) => (prev - 1 + challenges.length) % challenges.length);
+
+  const goToNext = () => setCurrentIndex((prev) => (prev + 1) % challenges.length);
 
   const active = challenges[currentIndex];
 
@@ -185,13 +188,6 @@ const FeaturedChallenge = () => {
                 <p className="text-sm xs:text-base sm:text-lg text-white/70 mb-7 max-w-xl leading-relaxed line-clamp-2">
                   {active?.description}
                 </p>
-
-                {/* <button className="inline-flex items-center gap-2.5 pl-6 pr-2.5 py-2.5 rounded-full bg-white text-slate-900 text-sm font-semibold hover:bg-white/90 transition-all group/btn">
-                  View challenge
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900 text-white group-hover/btn:translate-x-0.5 transition-transform duration-300">
-                    <ArrowRight className="w-4 h-4" />
-                  </span>
-                </button> */}
               </motion.div>
             </AnimatePresence>
           </div>
