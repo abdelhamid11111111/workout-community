@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
-const CTAFooter = () => {
+const JoinUs = () => {
   return (
     <div className="relative h-80 lg:h-80 bg-slate-950 overflow-hidden mt-12 lg:mt-20">
       <div className="absolute inset-0 bg-linear-to-br from-amber-600/85 via-orange-600/75 to-amber-700/80" />
@@ -27,4 +27,4 @@ const CTAFooter = () => {
   );
 };
 
-export default CTAFooter;
+export default JoinUs;

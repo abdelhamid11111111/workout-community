@@ -14,6 +14,11 @@ export const auth = betterAuth({
         unique: true,
         input: true,
       },
+      profilePic: {
+        type: "string",
+        required: false,
+        input: false, // set server-side after upload, not by the client
+      },
     },
   },
   plugins: [admin()],
