@@ -13,18 +13,22 @@ datasource db {
 }
 
 model User {
-  id            String       @id @default(cuid())
-  username      String       @unique
-  email         String       @unique
-  emailVerified Boolean      @default(false)
+  id            String         @id @default(cuid())
+  username      String         @unique
+  name          String?
+  banned        Boolean?       @default(false)
+  banReason     String?
+  banExpires    DateTime?
+  email         String         @unique
+  emailVerified Boolean        @default(false)
   passwordHash  String?
-  role          String       @default("user")
+  role          String         @default("user")
   currentLevel  Level?
-  personalGoals String[]
+  personalGoals PersonalGoals?
   workoutTime   WorkoutTime?
   profilePic    String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   challenges UserChallenge[]
   workouts   Workout[]
@@ -33,6 +37,22 @@ model User {
 
   @@index([email])
   @@index([username])
+}
+
+enum WorkoutTime {
+  Morning
+  Afternoon
+  Evening
+  Night
+}
+
+enum PersonalGoals {
+  WeightLoss
+  MuscleGain
+  Endurance
+  Flexibility
+  GeneralFitness
+  StressRelief
 }
 
 model Session {
@@ -77,13 +97,6 @@ model Verification {
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-}
-
-enum WorkoutTime {
-  Morning
-  Afternoon
-  Evening
-  Night
 }
 
 enum Level {
@@ -193,4 +206,3 @@ model Analytics {
   source    String? // google / twitter / direct
   createdAt DateTime @default(now())
 }
-
