@@ -24,7 +24,7 @@ model User {
   passwordHash  String?
   role          String         @default("user")
   currentLevel  Level?
-  personalGoals PersonalGoals?
+  personalGoals PersonalGoals[]
   workoutTime   WorkoutTime?
   profilePic    String?
   createdAt     DateTime       @default(now())

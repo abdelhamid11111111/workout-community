@@ -12,14 +12,19 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
 
     const username = ((formData.get("username") as string) || "").trim();
-    const email = ((formData.get("email") as string) || "").trim().toLowerCase();
+    const email = ((formData.get("email") as string) || "")
+      .trim()
+      .toLowerCase();
     const password = formData.get("password") as string;
     const currentLevel = formData.get("currentLevel") as string;
     const workoutTime = formData.get("workoutTime") as string;
     const personalGoals = formData.getAll("personalGoals[]") as string[];
     const profilePic = formData.get("profilePic") as File | null;
 
-    // 1. required fields
+    const VALID_GOALS = Object.values(PersonalGoals);
+    const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+    // ─── 1. Required fields ──────────────────────────────────────────
     if (!username || !email || !password) {
       return NextResponse.json(
         { error: "Username, email and password are required" },
@@ -27,52 +32,128 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // ─── 2. Username format ──────────────────────────────────────────
+    if (username.length < 3 || username.length > 20) {
+      return NextResponse.json(
+        { error: "Username must be between 3 and 20 characters" },
+        { status: 400 },
+      );
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      return NextResponse.json(
+        {
+          error: "Username can only contain letters, numbers, and underscores",
+        },
+        { status: 400 },
+      );
+    }
+
+    // ─── 3. Email format ──────────────────────────────────────────────
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "Please provide a valid email address" },
+        { status: 400 },
+      );
+    }
+    if (email.length > 254) {
+      return NextResponse.json({ error: "Email is too long" }, { status: 400 });
+    }
+
+    // ─── 4. Password rules ────────────────────────────────────────────
     if (password.length < 8) {
       return NextResponse.json(
         { error: "Password must be at least 8 characters" },
         { status: 400 },
       );
     }
-
-    // 2. validate enum-like fields if provided
-    if (currentLevel && !VALID_LEVELS.includes(currentLevel)) {
+    if (password.length > 72) {
       return NextResponse.json(
-        { error: "Invalid fitness level" },
+        { error: "Password is too long" },
         { status: 400 },
       );
     }
 
-    if (workoutTime && !VALID_TIMES.includes(workoutTime)) {
+    // ─── 5. Enum fields: currentLevel / workoutTime ──────────────────
+    if (!currentLevel || !VALID_LEVELS.includes(currentLevel)) {
       return NextResponse.json(
-        { error: "Invalid workout time" },
+        { error: "Please select a valid fitness level" },
+        { status: 400 },
+      );
+    }
+    if (!workoutTime || !VALID_TIMES.includes(workoutTime)) {
+      return NextResponse.json(
+        { error: "Please select a valid workout time" },
         { status: 400 },
       );
     }
 
-    if (profilePic && profilePic.size > 5 * 1024 * 1024) {
+    // ─── 6. personalGoals array ───────────────────────────────────────
+    if (personalGoals.length === 0) {
       return NextResponse.json(
-        { error: "Profile picture must be under 5MB" },
+        { error: "Please select at least one goal" },
         { status: 400 },
+      );
+    }
+    if (!personalGoals.every((g) => VALID_GOALS.includes(g as PersonalGoals))) {
+      return NextResponse.json(
+        { error: "Invalid personal goal provided" },
+        { status: 400 },
+      );
+    }
+
+    // ─── 7. Profile picture ───────────────────────────────────────────
+    if (profilePic) {
+      if (profilePic.size > 5 * 1024 * 1024) {
+        return NextResponse.json(
+          { error: "Profile picture must be under 5MB" },
+          { status: 400 },
+        );
+      }
+      if (!ALLOWED_IMAGE_TYPES.includes(profilePic.type)) {
+        return NextResponse.json(
+          { error: "Profile picture must be a JPG, PNG, or WEBP" },
+          { status: 400 },
+        );
+      }
+    }
+
+    // ─── 8. Duplicate checks (DB hits — kept last, cheap checks first) ─
+    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingEmail) {
+      return NextResponse.json(
+        { error: "An account with this email already exists" },
+        { status: 409 },
+      );
+    }
+
+    const existingUsername = await prisma.user.findUnique({
+      where: { username },
+    });
+    if (existingUsername) {
+      return NextResponse.json(
+        { error: "This username is already taken" },
+        { status: 409 },
       );
     }
 
     // 3. friendly duplicate check before we touch better-auth
-    const existing = await prisma.user.findFirst({
-      where: { OR: [{ email }, { username }] },
-      select: { email: true, username: true },
-    });
+    // const existing = await prisma.user.findFirst({
+    //   where: { OR: [{ email }, { username }] },
+    //   select: { email: true, username: true },
+    // });
 
-    if (existing) {
-      return NextResponse.json(
-        {
-          error:
-            existing.email === email
-              ? "An account with this email already exists"
-              : "This username is already taken",
-        },
-        { status: 409 },
-      );
-    }
+    // if (existing) {
+    //   return NextResponse.json(
+    //     {
+    //       error:
+    //         existing.email === email
+    //           ? "An account with this email already exists"
+    //           : "This username is already taken",
+    //     },
+    //     { status: 409 },
+    //   );
+    // }
 
     // 4. create the user + account + session through better-auth
     //    (handles password hashing and issues the session cookie)
@@ -132,10 +213,8 @@ export async function POST(req: NextRequest) {
       data: {
         currentLevel: currentLevel ? (currentLevel as Level) : undefined,
         workoutTime: workoutTime ? (workoutTime as WorkoutTime) : undefined,
-        // Add the missing [] to PersonalGoals here:
-        // Change this line inside your data object:
         personalGoals: personalGoals.length
-          ? (personalGoals[0] as PersonalGoals)
+          ? (personalGoals as PersonalGoals[])
           : undefined,
         profilePic: profilePicUrl,
       },

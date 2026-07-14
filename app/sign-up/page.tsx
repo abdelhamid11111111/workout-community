@@ -1,274 +1,156 @@
-'use client'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Dumbbell, Zap, Trophy } from 'lucide-react'
-import { useState } from 'react'
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import SignUp from "../components/ui/createAcc/SignUp";
+import OnboardingProfile from "../components/ui/createAcc/OnBoardingProfile";
+import CreatedSuccessfully from "../components/ui/createAcc/CreatedSuccessfully";
+import FailedToCreateAcc from "../components/ui/createAcc/FailedToCreateAcc";
+import { Level, WorkoutTime, PersonalGoals } from "@/generated/prisma/enums";
 
-export default function SignUp() {
-  const router = useRouter()
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+type Step = "form" | "onboarding" | "success" | "failed";
 
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [agreedToTerms, setAgreedToTerms] = useState(false)
-  const [error, setError] = useState('')
+export default function SignUpFlow() {
+  const router = useRouter();
+  const [step, setStep] = useState<Step>("form");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
+  // Step 1 fields
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-    if (!username || !email || !password || !confirmPassword) {
-      setError('Please fill in all fields.')
-      return
-    }
+  // Step 2 fields
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [currentLevel, setCurrentLevel] = useState<Level | "">("");
+  const [workoutTime, setWorkoutTime] = useState<WorkoutTime | "">("");
+  const [personalGoals, setPersonalGoals] = useState<PersonalGoals[]>([]);
+
+  // Moving from step 1 -> step 2 is purely local; nothing to send the
+  // backend yet since the endpoint expects the full profile in one shot.
+  // Password match is the ONE thing that has to be a client check —
+  // confirmPassword never reaches the server.
+  const handleNext = () => {
+    setError("");
     if (password !== confirmPassword) {
-      setError('Passwords do not match.')
-      return
+      setError("Passwords do not match.");
+      return;
     }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters.')
-      return
-    }
-    if (!agreedToTerms) {
-      setError('You must agree to the Terms & Conditions.')
-      return
-    }
+    setStep("onboarding");
+  };
 
-    // Save sign-up data temporarily, don't hit backend yet
-    sessionStorage.setItem(
-      'pendingSignUp',
-      JSON.stringify({ username, email, password })
-    )
+  const handleBack = () => {
+    setError("");
+    setStep("form");
+  };
 
-    router.push('/onboardingprofile')
-  }
+  const handleFinalSubmit = async () => {
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("email", email);
+      formData.append("password", password);
+      formData.append("currentLevel", currentLevel);
+      formData.append("workoutTime", workoutTime);
+      personalGoals.forEach((g) => formData.append("personalGoals[]", g));
+      if (profilePic) formData.append("profilePic", profilePic);
+
+      const res = await fetch("/api/auth/complete-signup", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong.");
+        setIsSubmitting(false);
+        setStep("failed");
+        return;
+      }
+
+      setIsSubmitting(false);
+      setStep("success");
+      setTimeout(() => router.push("/"), 1500);
+    } catch {
+      setError("Network error. Please try again.");
+      setIsSubmitting(false);
+      setStep("failed");
+    }
+  };
+
+  const handleRetry = () => {
+    setError("");
+    setStep("form"); // most failures (dup email/username) are step-1 concerns
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-[#f8fafc]">
+      <AnimatePresence mode="wait">
+        {step === "form" && (
+          <motion.div key="form" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}>
+            <SignUp
+              username={username} setUsername={setUsername}
+              email={email} setEmail={setEmail}
+              password={password} setPassword={setPassword}
+              confirmPassword={confirmPassword} setConfirmPassword={setConfirmPassword}
+              agreedToTerms={agreedToTerms} setAgreedToTerms={setAgreedToTerms}
+              error={error}
+            />
+          </motion.div>
+        )}
 
-      {/* Left panel — branding */}
-      <div className="hidden lg:flex flex-col justify-between w-[480px] shrink-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-teal-700 p-12 relative overflow-hidden">
-        <div className="absolute top-[-80px] right-[-80px] w-[320px] h-[320px] rounded-full bg-white/5" />
-        <div className="absolute bottom-[-60px] left-[-60px] w-[260px] h-[260px] rounded-full bg-white/5" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-white/[0.03]" />
+        {step === "onboarding" && (
+          <motion.div key="onboarding" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}>
+            <OnboardingProfile
+              profilePic={profilePic} setProfilePic={setProfilePic}
+              currentLevel={currentLevel} setCurrentLevel={setCurrentLevel}
+              workoutTime={workoutTime} setWorkoutTime={setWorkoutTime}
+              personalGoals={personalGoals} setPersonalGoals={setPersonalGoals}
+              error={error}
+            />
+          </motion.div>
+        )}
 
-        <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-              <span className="text-white font-extrabold text-sm tracking-tight">FIT</span>
-            </div>
-            <span className="text-white font-extrabold text-lg tracking-tight">FitApp</span>
-          </div>
+        {step === "success" && (
+          <motion.div key="success" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <CreatedSuccessfully />
+          </motion.div>
+        )}
+
+        {step === "failed" && (
+          <motion.div key="failed" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <FailedToCreateAcc message={error} onRetry={handleRetry} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {(step === "form" || step === "onboarding") && (
+        <div className="flex items-center justify-center gap-4 pb-16">
+          {step === "onboarding" && (
+            <button
+              type="button"
+              onClick={handleBack}
+              className="flex items-center justify-center gap-2 px-10 py-4 bg-white border border-slate-200 hover:bg-slate-50 active:scale-[0.99] text-slate-700 text-sm font-semibold rounded-xl transition-all"
+            >
+              Back
+            </button>
+          )}
+          <button
+            type="button"
+            disabled={isSubmitting}
+            onClick={step === "form" ? handleNext : handleFinalSubmit}
+            className="flex items-center justify-center gap-2 px-10 py-4 bg-[#00966d] hover:bg-[#007f5c] active:scale-[0.99] text-white text-sm font-semibold rounded-xl transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50"
+          >
+            {step === "form" ? "Create account" : isSubmitting ? "Creating account..." : "Finish setup"}
+          </button>
         </div>
-
-        <div className="relative z-10 space-y-8">
-          <div>
-            <h2 className="text-4xl font-extrabold text-white leading-tight tracking-tight">
-              Build your best<br />self, one rep<br />at a time.
-            </h2>
-            <p className="mt-4 text-teal-100 text-base leading-relaxed">
-              Join thousands of people crushing their fitness goals every single day.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white/10 rounded-2xl p-4 text-center">
-              <div className="text-2xl font-extrabold text-white">1.2K</div>
-              <div className="text-xs text-teal-100 mt-0.5 font-medium">Members</div>
-            </div>
-            <div className="bg-white/10 rounded-2xl p-4 text-center">
-              <div className="text-2xl font-extrabold text-white">24</div>
-              <div className="text-xs text-teal-100 mt-0.5 font-medium">Challenges</div>
-            </div>
-            <div className="bg-white/10 rounded-2xl p-4 text-center">
-              <div className="text-2xl font-extrabold text-white">8.4K</div>
-              <div className="text-xs text-teal-100 mt-0.5 font-medium">Workouts</div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
-                <Trophy className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-teal-50 text-sm font-medium">Join challenges & earn reward points</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
-                <Zap className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-teal-50 text-sm font-medium">Track workouts and calories burned</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
-                <Dumbbell className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-teal-50 text-sm font-medium">All levels — beginner to advanced</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative z-10 text-teal-200 text-xs">
-          © 2026 FitApp. All rights reserved.
-        </div>
-      </div>
-
-      {/* Right panel — form */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="w-full max-w-md"
-        >
-
-          <div className="flex items-center gap-3 mb-8 lg:hidden">
-            <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
-              <span className="text-white font-extrabold text-xs tracking-tight">FIT</span>
-            </div>
-            <span className="text-slate-900 font-extrabold text-base tracking-tight">FitApp</span>
-          </div>
-
-          <div className="mb-8">
-            <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900">
-              Create your account
-            </h1>
-            <p className="mt-2 text-slate-500 text-sm">
-              Start your fitness journey today. It is free.
-            </p>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 lg:p-8">
-            <form onSubmit={handleSubmit} className="space-y-5">
-
-              {error && (
-                <div className="text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                  {error}
-                </div>
-              )}
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-widest mb-2">
-                  Username
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="e.g. sara_fit"
-                    className="w-full pl-10 pr-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent focus:bg-white transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-widest mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    className="w-full pl-10 pr-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent focus:bg-white transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-widest mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Create a strong password"
-                    className="w-full pl-10 pr-12 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent focus:bg-white transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-widest mb-2">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your password"
-                    className="w-full pl-10 pr-12 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent focus:bg-white transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 pt-1">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  checked={agreedToTerms}
-                  onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="w-4 h-4 mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-400"
-                />
-                <label htmlFor="terms" className="text-xs text-slate-500 leading-relaxed">
-                  I agree to the{' '}
-                  <Link href="#" className="text-emerald-600 hover:text-emerald-700 font-semibold">
-                    Terms & Conditions
-                  </Link>{' '}
-                  and{' '}
-                  <Link href="#" className="text-emerald-600 hover:text-emerald-700 font-semibold">
-                    Privacy Policy
-                  </Link>
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm mt-2"
-              >
-                Continue
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-            </form>
-          </div>
-
-          <p className="text-center text-sm text-slate-500 mt-6">
-            Already have an account?{' '}
-            <Link href="/sign-in" className="text-emerald-600 hover:text-emerald-700 font-semibold">
-              Sign In
-            </Link>
-          </p>
-
-        </motion.div>
-      </div>
+      )}
     </div>
-  )
+  );
 }
