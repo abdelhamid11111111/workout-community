@@ -76,7 +76,9 @@ export default function SignUpFlow() {
 
       setIsSubmitting(false);
       setStep("success");
-      setTimeout(() => router.push("/"), 1500);
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1500);
     } catch {
       setError("Network error. Please try again.");
       setIsSubmitting(false);
