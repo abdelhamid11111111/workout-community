@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+
 const ChallengePage = () => {
   const { title } = useParams();
   const [challenge, setChallenge] = useState<null | challenge>(null);
@@ -40,7 +41,25 @@ const ChallengePage = () => {
       fetchChallenge();
     };
     load();
-  }, [challenge]);
+  }, [title]);
+
+  const handleJoin = async () => {
+    try{
+
+      const res = await fetch('/api/challenge/join', {
+        method: 'POST',
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ challengeId: challenge?.id})
+      })
+
+      if(res.ok || res.status === 409){
+        router.push('/mychallenges')
+      }
+
+    } catch(error){
+      console.error('Failed to join', error)
+    }
+  }
 
   return (
     <div>
@@ -192,11 +211,11 @@ const ChallengePage = () => {
                       </span>
                     </div>
                   </div>
-                  <Link href="/mychallenges">
-                    <button className="w-full py-3 px-6 rounded-xl font-bold text-sm transition-all bg-orange-500 hover:bg-orange-400 text-white shadow-sm shadow-orange-200 active:scale-[0.98]">
+                    <button 
+                    onClick={handleJoin}
+                    className="w-full py-3 px-6 rounded-xl font-bold text-sm transition-all bg-orange-500 hover:bg-orange-400 text-white shadow-sm shadow-orange-200 active:scale-[0.98]">
                       Join Challenge
                     </button>
-                  </Link>
 
                   {challenge.active == true && (
                     <p className="text-xs text-slate-400 mt-3 text-center flex items-center justify-center gap-1.5">
