@@ -4,21 +4,17 @@ import { admin } from "better-auth/plugins";
 import { prisma } from "./prisma";
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://localhost:3001", 
+  ],
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: { enabled: true },
   user: {
     additionalFields: {
-      username: {
-        type: "string",
-        required: true,
-        unique: true,
-        input: true,
-      },
-      profilePic: {
-        type: "string",
-        required: false,
-        input: false, // set server-side after upload, not by the client
-      },
+      username: { type: "string", required: true, unique: true, input: true },
+      profilePic: { type: "string", required: false, input: false },
     },
   },
   plugins: [admin()],

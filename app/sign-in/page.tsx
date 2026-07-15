@@ -19,7 +19,7 @@ export default function SignIn() {
 
   // 2. The actual sign-in logic
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // stop the browser's default full-page form submit
+    e.preventDefault(); 
     setError("");
     setIsSubmitting(true);
 
@@ -113,12 +113,12 @@ export default function SignIn() {
                   <label className="block text-xs font-semibold text-slate-700 uppercase tracking-widest">
                     Password
                   </label>
-                  <Link
+                  {/* <Link
                     href="/forgot-password"
                     className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold"
                   >
                     Forgot password?
-                  </Link>
+                  </Link> */}
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, User as UserIcon, LogOut } from "lucide-react";
+import { User as UserIcon, LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 
 type SessionUser = {
@@ -15,17 +15,18 @@ type Props = {
 };
 
 const Navbar = ({ initialSession }: Props) => {
-
   // data: get access to data in the browser.
   // isPending is boolean change according loading.
 
-  // get data of session and isPending status from the browser
-  const {data: session, isPending} = authClient.useSession()
+  // session refer to get data of session, and isPending is status from the browser
+  const { data: session, isPending } = authClient.useSession();
 
   const [menuOpen, setMenuOpen] = useState(false);
 
   // if loading is true get data from server, if false get it from browser
-  const user = isPending ? (initialSession?.user ?? null ): (session?.user ?? null)
+  const user = isPending
+    ? (initialSession?.user ?? null)
+    : (session?.user ?? null);
 
   return (
     <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
@@ -48,7 +49,7 @@ const Navbar = ({ initialSession }: Props) => {
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen((v) => !v)}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-emerald-500 shadow-sm hover:opacity-90 transition"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 shadow-sm hover:opacity-90 transition"
                   aria-label="Open profile menu"
                 >
                   {user.profilePic ? (
@@ -65,20 +66,18 @@ const Navbar = ({ initialSession }: Props) => {
                 </button>
 
                 {menuOpen && (
-                  <div
-                    className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 overflow-hidden"
-                    onMouseLeave={() => setMenuOpen(false)}
-                  >
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 overflow-hidden">
+                    {/* onMouseLeave supprimé */}
                     <div className="px-4 py-2 text-sm font-medium text-slate-800 border-b border-slate-100 truncate">
                       {user.name}
                     </div>
-                    <Link
+                    {/* <Link
                       href="/profile"
                       className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
                       onClick={() => setMenuOpen(false)}
                     >
                       My Profile
-                    </Link>
+                    </Link> */}
                     <button
                       onClick={async () => {
                         setMenuOpen(false);
@@ -112,7 +111,7 @@ const Navbar = ({ initialSession }: Props) => {
 
             {/* Mobile Menu Button */}
             <button className="md:hidden p-2 rounded-full hover:bg-slate-100 transition-colors">
-              <Menu className="w-6 h-6 text-slate-800" />
+              {/* <Menu className="w-6 h-6 text-slate-800" /> */}
             </button>
           </div>
         </div>
