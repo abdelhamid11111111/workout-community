@@ -19,7 +19,6 @@ export const config = {
   matcher: [
     "/mychallenges/:path*",
     "/workout/:path*",
-    "/leaderboard/:path*",
     "/admin/:path+", // + instead of * : requires at least one segment after /admin, so bare /admin is NOT matched
   ],
 };

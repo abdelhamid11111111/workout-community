@@ -8,24 +8,23 @@ import FeaturedChallenge from "../../../components/ui/FeaturedChallenge";
 import Challenges from "../../../components/ui/Challenges";
 import Footer from "../../../components/ui/Footer";
 import JoinUs from "../../../components/ui/JoinUs";
-import { Categories, Level } from "@/generated/prisma/enums"
+import { Categories, Level } from "@/generated/prisma/enums";
 
-type SessionUser = {
-  name?: string | null;
-  email: string;
-  profilePic?: string | null;
-};
+type initialSession = {
+  name: string | null,
+  email: string,
+  profilePic?: string | null
+}
 
 type Props = {
-  initialSession: { user: SessionUser } | null;
-};
-
-const ChallengesHome = ({ initialSession }: Props) => {
+  initialSession: {user: initialSession} | null
+}
 
 
-   const categories = Object.values(Categories)
-   const levels = Object.values(Level)
+const ChallengesHome = ({initialSession}: Props) => {
 
+  const categories = Object.values(Categories);
+  const levels = Object.values(Level);
 
   return (
     <div className="min-h-screen bg-slate-50 antialiased">
@@ -59,12 +58,15 @@ const ChallengesHome = ({ initialSession }: Props) => {
                 routine
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
-                <Link
-                  href="/mychallenges"
-                  className="px-8 py-4 bg-white text-emerald-700 rounded-full font-semibold hover:bg-slate-100 shadow-lg hover:shadow-xl transition-all duration-300 text-base sm:text-lg"
-                >
-                  View My Challenges
-                </Link>
+                {initialSession && (
+                  <Link
+                    href="/mychallenges"
+                    className="px-8 py-4 bg-white text-emerald-700 rounded-full font-semibold hover:bg-slate-100 shadow-lg hover:shadow-xl transition-all duration-300 text-base sm:text-lg"
+                  >
+                    View My Challenges
+                  </Link>
+                )}
+
                 <Link
                   href="/leaderboard"
                   className="px-8 py-4 bg-transparent border-2 border-white/40 text-white rounded-full font-medium hover:bg-white/10 backdrop-blur-sm transition-all duration-300 text-base sm:text-lg"
@@ -78,19 +80,19 @@ const ChallengesHome = ({ initialSession }: Props) => {
       </div>
 
       {/* Stats – softer cards, better icon contrast */}
-     <CardsHome/>
+      {initialSession && <CardsHome />}
 
       {/* Featured Carousel – cleaner overlay, modern typography */}
-      <FeaturedChallenge/>
+      <FeaturedChallenge />
 
       {/* Search - Categories - Challenges - Pagination */}
       <Challenges categories={categories} levels={levels} />
 
       {/* CTA Footer – richer gradient, better contrast */}
-      <JoinUs/>
+      <JoinUs />
 
       {/* Footer */}
-      <Footer/>
+      <Footer />
     </div>
   );
 };

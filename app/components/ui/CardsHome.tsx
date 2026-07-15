@@ -1,17 +1,10 @@
 import React from 'react'
 import { motion } from "framer-motion";
 import {
-  Search,
-  Filter,
   TrendingUp,
   Users,
   Calendar,
   Trophy,
-  ChevronLeft,
-  ChevronRight,
-  ArrowRight,
-  Menu,
-  X,
 } from "lucide-react";
 
  const stats = [

@@ -15,13 +15,17 @@ type Props = {
 };
 
 const Navbar = ({ initialSession }: Props) => {
-  const { data: session, isPending } = authClient.useSession();
+
+  // data: get access to data in the browser.
+  // isPending is boolean change according loading.
+
+  // get data of session and isPending status from the browser
+  const {data: session, isPending} = authClient.useSession()
+
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // While the client session is still resolving, trust the session we
-  // already fetched server-side (in the RSC) so the avatar/buttons render
-  // correctly on first paint instead of flashing "Sign In" then swapping.
-  const user = isPending ? (initialSession?.user ?? null) : (session?.user ?? null);
+  // if loading is true get data from server, if false get it from browser
+  const user = isPending ? (initialSession?.user ?? null ): (session?.user ?? null)
 
   return (
     <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
@@ -66,7 +70,7 @@ const Navbar = ({ initialSession }: Props) => {
                     onMouseLeave={() => setMenuOpen(false)}
                   >
                     <div className="px-4 py-2 text-sm font-medium text-slate-800 border-b border-slate-100 truncate">
-                      {user.name ?? user.email}
+                      {user.name}
                     </div>
                     <Link
                       href="/profile"
