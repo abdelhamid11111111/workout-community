@@ -103,7 +103,6 @@ const AdminAuth = () => {
           </button>
         </form>
       </div>
-      {/* Fake "Sign Up" link removed — admin accounts are never self-registered */}
     </div>
   );
 };

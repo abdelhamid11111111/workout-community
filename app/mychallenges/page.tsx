@@ -35,30 +35,6 @@ const MyChallenges = () => {
       currentStreak: 9,
       daysRemaining: 22,
       images: ['https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80']
-    },
-    {
-      id: 2,
-      title: 'Morning Yoga Flow Challenge',
-      category: 'Yoga',
-      difficulty: 'Beginner',
-      progress: 11,
-      workoutsCompleted: 14,
-      workoutsTotal: 30,
-      currentStreak: 2,
-      daysRemaining: 8,
-      images: ['https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&q=80']
-    },
-    {
-      id: 3,
-      title: 'HIIT Cardio Blast',
-      category: 'HIIT',
-      difficulty: 'Advanced',
-      progress: 42,
-      workoutsCompleted: 0,
-      workoutsTotal: 30,
-      currentStreak: 0,
-      daysRemaining: 17,
-      images: ['https://images.unsplash.com/photo-1517836357463-d25ddfcbf042?w=400&q=80']
     }
   ]
 

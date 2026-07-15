@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 import { auth } from "./lib/auth";
 
+export const runtime = "nodejs";
+
 export async function middleware(req: NextRequest) {
+  
   const sessionCookie = getSessionCookie(req);
   const pathname = req.nextUrl.pathname;
 

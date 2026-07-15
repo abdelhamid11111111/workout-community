@@ -14,15 +14,14 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-
+import Link from "next/link";
 
 const ChallengePage = () => {
   const { title } = useParams();
   const [challenge, setChallenge] = useState<null | challenge>(null);
   const [pics, setPics] = useState<string[]>([]);
   const [goals, setGoals] = useState<string[]>([]);
-  const router = useRouter()
+  const router = useRouter();
 
   const fetchChallenge = async () => {
     try {
@@ -59,7 +58,7 @@ const ChallengePage = () => {
                 {/* Status badge */}
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {challenge.active == true ? 'active' : 'inactive'}
+                  {challenge.active == true ? "active" : "inactive"}
                 </span>
                 {/* Category badge */}
                 <span className="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-orange-50 text-orange-600 border border-orange-200">
@@ -193,10 +192,11 @@ const ChallengePage = () => {
                       </span>
                     </div>
                   </div>
-
-                  <button className="w-full py-3 px-6 rounded-xl font-bold text-sm transition-all bg-orange-500 hover:bg-orange-400 text-white shadow-sm shadow-orange-200 active:scale-[0.98]">
-                    Join Challenge
-                  </button>
+                  <Link href="/mychallenges">
+                    <button className="w-full py-3 px-6 rounded-xl font-bold text-sm transition-all bg-orange-500 hover:bg-orange-400 text-white shadow-sm shadow-orange-200 active:scale-[0.98]">
+                      Join Challenge
+                    </button>
+                  </Link>
 
                   {challenge.active == true && (
                     <p className="text-xs text-slate-400 mt-3 text-center flex items-center justify-center gap-1.5">
