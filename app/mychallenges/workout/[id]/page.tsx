@@ -1,11 +1,15 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const SubmitRoutine = () => {
+
   const router = useRouter();
+
+  const [duration, setDuration] = useState('')
+  const [burnedCalories, setBurnedCalories] = useState('')
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
@@ -39,20 +43,6 @@ const SubmitRoutine = () => {
                 Workout Details
               </h2>
               <div className="space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Workout Type *
-                  </label>
-                  <select className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors">
-                    <option value="">Select workout type</option>
-                    <option value="cardio">Cardio</option>
-                    <option value="strength">Strength Training</option>
-                    <option value="flexibility">Flexibility</option>
-                    <option value="hiit">HIIT</option>
-                    <option value="yoga">Yoga</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -77,16 +67,7 @@ const SubmitRoutine = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Workout Description *
-                  </label>
-                  <textarea
-                    rows={4}
-                    placeholder="Describe your workout..."
-                    className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm placeholder:text-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors resize-none"
-                  />
-                </div>
+                
               </div>
             </div>
 
@@ -152,6 +133,7 @@ const SubmitRoutine = () => {
             <div className="flex gap-4">
               <button
                 type="button"
+                onClick={() => router.back()}
                 className="flex-1 py-3 px-6 rounded-xl font-semibold text-sm border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm"
               >
                 Cancel

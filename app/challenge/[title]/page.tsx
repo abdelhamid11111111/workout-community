@@ -14,13 +14,12 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { authClient } from "@/lib/auth-client";
+import JoinedSuccessfully from "@/app/components/ui/challengePage/JoinedSuccessfully";
 
 const ChallengePage = () => {
   const { title } = useParams();
   const [challenge, setChallenge] = useState<null | challenge>(null);
-
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [UserChallenge, setUserChallenge] = useState<userChallenge | null>(
     null,
   );
@@ -74,7 +73,14 @@ const ChallengePage = () => {
         body: JSON.stringify({ challengeId: challenge?.id }),
       });
 
-      if (res.ok || res.status === 409) {
+      if (res.ok) {
+        setUserChallenge({} as userChallenge); // optimistically flip button state too
+        setShowSuccessModal(true);
+        setTimeout(() => {
+          router.push("/mychallenges");
+        }, 2000); // let them see the modal for 2s before redirecting
+      } else if (res.status === 409) {
+        // already joined — no need for a "success" modal, just send them along
         router.push("/mychallenges");
       }
     } catch (error) {
@@ -270,6 +276,12 @@ const ChallengePage = () => {
             </div>
           </div>
         </div>
+      )}
+        {showSuccessModal && (
+        <JoinedSuccessfully
+          challengeTitle={challenge?.title ?? ""}
+          onClose={() => router.push("/mychallenges")} // clicking outside also just sends them there
+        />
       )}
     </div>
   );
