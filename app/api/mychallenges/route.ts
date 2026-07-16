@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
     },
     include: {
       challenge: true,
+      user: true
     },
   });
   return NextResponse.json(challengesOfUser, { status: 200 });

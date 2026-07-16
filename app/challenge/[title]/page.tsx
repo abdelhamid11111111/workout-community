@@ -1,5 +1,5 @@
 "use client";
-import { challenge } from "@/app/types/types";
+import { challenge, userChallenge } from "@/app/types/types";
 import {
   Calendar,
   Users,
@@ -15,11 +15,14 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
+import { authClient } from "@/lib/auth-client";
 
 const ChallengePage = () => {
+  const { data: session } = authClient.useSession();
+
   const { title } = useParams();
   const [challenge, setChallenge] = useState<null | challenge>(null);
+  const [UserChallenge, setUserChallenge] = useState<userChallenge | null>(null);
   const [pics, setPics] = useState<string[]>([]);
   const [goals, setGoals] = useState<string[]>([]);
   const router = useRouter();
@@ -43,23 +46,35 @@ const ChallengePage = () => {
     load();
   }, [title]);
 
-  const handleJoin = async () => {
-    try{
-
-      const res = await fetch('/api/challenge/join', {
-        method: 'POST',
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ challengeId: challenge?.id})
-      })
-
-      if(res.ok || res.status === 409){
-        router.push('/mychallenges')
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      try {
+        const res = await fetch(`/api/is-joined/${challenge?.id}`);
+        const data = await res.json();
+        setUserChallenge(data);
+      } catch (error) {
+        console.error("Failed", error);
       }
+    };
+    fetchChallenges();
+  }, [challenge?.id]);
 
-    } catch(error){
-      console.error('Failed to join', error)
+  
+  const handleJoin = async () => {
+    try {
+      const res = await fetch("/api/challenge/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ challengeId: challenge?.id }),
+      });
+
+      if (res.ok || res.status === 409) {
+        router.push("/mychallenges");
+      }
+    } catch (error) {
+      console.error("Failed to join", error);
     }
-  }
+  };
 
   return (
     <div>
@@ -211,11 +226,22 @@ const ChallengePage = () => {
                       </span>
                     </div>
                   </div>
-                    <button 
-                    onClick={handleJoin}
-                    className="w-full py-3 px-6 rounded-xl font-bold text-sm transition-all bg-orange-500 hover:bg-orange-400 text-white shadow-sm shadow-orange-200 active:scale-[0.98]">
+
+                  {UserChallenge ? (
+                    <button
+                      disabled
+                      className="w-full py-3 px-6 rounded-xl font-bold text-sm bg-slate-100 text-slate-400 cursor-not-allowed"
+                    >
+                      Already Joined
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleJoin}
+                      className="w-full py-3 px-6 rounded-xl font-bold text-sm transition-all bg-orange-500 hover:bg-orange-400 text-white shadow-sm shadow-orange-200 active:scale-[0.98]"
+                    >
                       Join Challenge
                     </button>
+                  )}
 
                   {challenge.active == true && (
                     <p className="text-xs text-slate-400 mt-3 text-center flex items-center justify-center gap-1.5">

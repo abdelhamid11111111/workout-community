@@ -349,7 +349,7 @@ const MyChallenges = () => {
                           {userChallenge.challenge.days && (
                             <span className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-blue-50 text-blue-800 border border-blue-100">
                               {/* {challenge.daysRemaining}  */}
-                              days left
+                              2 days left
                             </span>
                           )}
                         </div>
@@ -363,13 +363,13 @@ const MyChallenges = () => {
                           </span>
                           <span className="text-sm font-bold text-emerald-700">
                             {/* {challenge.progress} */}
-                            progress %
+                            33 %
                           </span>
                         </div>
-                        {/* <ProgressBar
-                        progress={challenge.progress}
+                        <ProgressBar
+                        progress={4}
                         height="h-2.5"
-                      /> */}
+                      />
                       </div>
 
                       {/* Stats Grid */}
@@ -381,13 +381,13 @@ const MyChallenges = () => {
                           <div>
                             <p className="text-xs text-slate-500">Workouts</p>
                             <p className="font-semibold text-slate-900">
-                              {/* {challenge.workoutsCompleted} /{" "}
-                            {challenge.workoutsTotal} */}
+                              4 /{" "}
+                            {userChallenge.challenge.days}
                             </p>
                           </div>
                         </div>
 
-                        {/* {challenge.currentStreak !== undefined && (
+                        {/* {challenge.currentStreak !== undefined && ( */}
                         <div className="flex items-center gap-3">
                           <div className="p-2.5 rounded-lg bg-slate-100">
                             <TrendingUp className="w-5 h-5 text-slate-600" />
@@ -397,14 +397,13 @@ const MyChallenges = () => {
                               Current Streak
                             </p>
                             <p className="font-semibold text-slate-900">
-                              {challenge.currentStreak} 
-                              streak days
+                              22 days
                             </p>
                           </div>
                         </div>
-                      )} */}
+                      {/* )} */}
 
-                        {/* {challenge.daysRemaining !== undefined && (
+                        {/* {challenge.daysRemaining !== undefined && ( */}
                         <div className="flex items-center gap-3">
                           <div className="p-2.5 rounded-lg bg-slate-100">
                             <Calendar className="w-5 h-5 text-slate-600" />
@@ -414,11 +413,11 @@ const MyChallenges = () => {
                               Days Remaining
                             </p>
                             <p className="font-semibold text-slate-900">
-                              {challenge.daysRemaining}
+                              12
                             </p>
                           </div>
                         </div>
-                      )} */}
+                      {/* )} */}
 
                         {/* {challenge.completedDate && (
                         <div className="flex items-center gap-3">
@@ -445,12 +444,12 @@ const MyChallenges = () => {
                           <Upload className="w-4 h-4" />
                           Submit Workout
                         </Link>
-                        <div
-                          // href={`/challenge/${challenge.id}`}
+                        <Link
+                          href={`/challenge/${userChallenge.challenge.title}`}
                           className="inline-flex items-center px-6 py-3 bg-white text-emerald-700 border-2 border-emerald-200 hover:border-emerald-400 rounded-xl font-semibold transition-all duration-200 text-sm sm:text-base"
                         >
                           View Details
-                        </div>
+                        </Link>
                         <div
                           // href={`/challenge/${challenge.id}`}
                           className="inline-flex items-center px-6 py-3 bg-white text-emerald-700 border-2 border-emerald-200 hover:border-emerald-400 rounded-xl font-semibold transition-all duration-200 text-sm sm:text-base"

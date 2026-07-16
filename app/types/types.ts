@@ -13,6 +13,11 @@ export type FormType = {
 
 export type userChallenge = {
   challenge: challenge
+  user: User
+}
+
+export type User = {
+  id: string
 }
 
 export type challenge = {
