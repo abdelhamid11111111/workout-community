@@ -18,11 +18,13 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 
 const ChallengePage = () => {
-  const { data: session } = authClient.useSession();
-
   const { title } = useParams();
   const [challenge, setChallenge] = useState<null | challenge>(null);
-  const [UserChallenge, setUserChallenge] = useState<userChallenge | null>(null);
+
+  const [UserChallenge, setUserChallenge] = useState<userChallenge | null>(
+    null,
+  );
+  const [isCheckingJoined, setIsCheckingJoined] = useState(true);
   const [pics, setPics] = useState<string[]>([]);
   const [goals, setGoals] = useState<string[]>([]);
   const router = useRouter();
@@ -47,19 +49,23 @@ const ChallengePage = () => {
   }, [title]);
 
   useEffect(() => {
+    if (!challenge?.id) return;
+
     const fetchChallenges = async () => {
+      setIsCheckingJoined(true);
       try {
-        const res = await fetch(`/api/is-joined/${challenge?.id}`);
+        const res = await fetch(`/api/is-joined/${challenge.id}`);
         const data = await res.json();
         setUserChallenge(data);
       } catch (error) {
         console.error("Failed", error);
+      } finally {
+        setIsCheckingJoined(false);
       }
     };
     fetchChallenges();
   }, [challenge?.id]);
 
-  
   const handleJoin = async () => {
     try {
       const res = await fetch("/api/challenge/join", {
@@ -83,8 +89,11 @@ const ChallengePage = () => {
           {/* ── Header ── */}
           <div className="relative overflow-hidden bg-white border-b border-slate-200">
             <div className="relative max-w-7xl mx-auto px-6 md:px-10 py-8">
-              <button className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 mb-6 transition-colors font-medium">
-                <ArrowLeft onClick={() => router.back()} className="w-4 h-4" />
+              <button
+                onClick={() => router.back()}
+                className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 mb-6 transition-colors font-medium"
+              >
+                <ArrowLeft className="w-4 h-4" />
                 Back
               </button>
 
@@ -227,7 +236,14 @@ const ChallengePage = () => {
                     </div>
                   </div>
 
-                  {UserChallenge ? (
+                  {isCheckingJoined ? (
+                    <button
+                      disabled
+                      className="w-full py-3 px-6 rounded-xl font-bold text-sm bg-slate-100 text-slate-400 cursor-not-allowed animate-pulse"
+                    >
+                      Checking...
+                    </button>
+                  ) : UserChallenge ? (
                     <button
                       disabled
                       className="w-full py-3 px-6 rounded-xl font-bold text-sm bg-slate-100 text-slate-400 cursor-not-allowed"
