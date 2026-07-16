@@ -2,14 +2,54 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, CheckCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { Intensity, Feel } from "@/generated/prisma/enums";
+
+const intensity = Object.values(Intensity);
+const feel = Object.values(Feel);
 
 const SubmitRoutine = () => {
-
   const router = useRouter();
 
-  const [duration, setDuration] = useState('')
-  const [burnedCalories, setBurnedCalories] = useState('')
+  const [duration, setDuration] = useState("");
+  const [burnedCalories, setBurnedCalories] = useState("");
+  const [selectedIntensity, setSelectedIntensity] = useState<Intensity>();
+  const [selectedFeel, setSelectedFeel] = useState<Feel>();
+  const [error, setError] = useState('')
+
+  const formatEnumText = (text: string) => {
+    const spaced = text.replace(/([A-Z])/g, " $1").trim();
+    return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+  };
+
+  const { id } = useParams();
+  const challengeId = id
+
+  const handleSubmit = async () => {
+    try {
+      const res = await fetch(`/api/workout/${challengeId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          duration: duration,
+          burnedCalories: burnedCalories,
+          selectedFeel: selectedFeel,
+          selectedIntensity: selectedIntensity,
+        }),
+      });
+
+      const data = await res.json()
+
+      if(res.ok){
+        router.push('/mychallenges')
+      } else{
+        setError(data.error)
+      }
+
+    } catch (error) {
+      console.error("failed", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
@@ -43,7 +83,6 @@ const SubmitRoutine = () => {
                 Workout Details
               </h2>
               <div className="space-y-5">
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -51,6 +90,8 @@ const SubmitRoutine = () => {
                     </label>
                     <input
                       type="number"
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
                       placeholder="e.g., 45"
                       className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm placeholder:text-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
                     />
@@ -61,13 +102,13 @@ const SubmitRoutine = () => {
                     </label>
                     <input
                       type="number"
+                      value={burnedCalories}
+                      onChange={(e) => setBurnedCalories(e.target.value)}
                       placeholder="e.g., 350"
                       className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 text-sm placeholder:text-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
                     />
                   </div>
                 </div>
-
-                
               </div>
             </div>
 
@@ -82,18 +123,16 @@ const SubmitRoutine = () => {
                     Intensity Level *
                   </label>
                   <div className="flex gap-2">
-                    {["Low", "Moderate", "High", "Very High"].map((level) => (
+                    {intensity.map((level) => (
                       <label key={level} className="flex-1">
-                        <input
-                          type="radio"
-                          value={level.toLowerCase()}
-                          className="sr-only peer"
-                          name="intensity"
-                        />
                         <div
-                          className="px-2 py-2.5 text-center text-sm font-medium rounded-xl border border-gray-200 bg-gray-50 text-gray-600 cursor-pointer
-                          peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600
-                          hover:border-gray-300 hover:text-gray-800 transition-all"
+                          onClick={() => setSelectedIntensity(level)}
+                          className={`px-2 py-2.5 text-center text-sm font-medium rounded-xl border cursor-pointer transition-all
+  ${
+    selectedIntensity === level
+      ? "border-orange-500 bg-orange-50 text-orange-600"
+      : "border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:text-gray-800"
+  }`}
                         >
                           {level}
                         </div>
@@ -107,20 +146,18 @@ const SubmitRoutine = () => {
                     How do you feel after this workout? *
                   </label>
                   <div className="flex gap-2">
-                    {["😫", "😐", "🙂", "😊", "🤩"].map((emoji, index) => (
+                    {feel.map((feel, index) => (
                       <label key={index} className="flex-1">
-                        <input
-                          type="radio"
-                          value={index + 1}
-                          className="sr-only peer"
-                          name="feeling"
-                        />
                         <div
-                          className="text-2xl text-center py-2.5 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer
-                          peer-checked:border-orange-500 peer-checked:bg-orange-50
-                          hover:border-gray-300 transition-all"
+                          onClick={() => setSelectedFeel(feel)}
+                          className={`px-2 py-2.5 text-center text-sm font-medium rounded-xl border cursor-pointer transition-all
+  ${
+    selectedFeel === feel
+      ? "border-orange-500 bg-orange-50 text-orange-600"
+      : "border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:text-gray-800"
+  }`}
                         >
-                          {emoji}
+                          {formatEnumText(feel)}
                         </div>
                       </label>
                     ))}
@@ -140,9 +177,12 @@ const SubmitRoutine = () => {
               </button>
               <button
                 type="submit"
+                  onClick={handleSubmit}
                 className="flex-1 py-3 px-6 rounded-xl font-bold text-sm bg-orange-500 hover:bg-orange-400 text-white transition-all active:scale-[0.98] shadow-sm"
               >
-                <span className="flex items-center justify-center gap-2">
+                <span
+                  className="flex items-center justify-center gap-2"
+                >
                   <CheckCircle className="w-4 h-4" />
                   Submit Workout
                 </span>

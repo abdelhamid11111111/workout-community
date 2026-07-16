@@ -170,11 +170,10 @@ enum Feel {
 }
 
 model Workout {
-  id             String    @id @default(cuid())
+  id             String    @id @default(cuid()) 
   userId         String
   challengeId    String
   duration       Int
-  description    String
   caloriesBurned Int?
   intensityLevel Intensity
   feel           Feel?
