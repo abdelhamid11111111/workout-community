@@ -11,6 +11,10 @@ export type FormType = {
   images: (File | string | null)[];
 };
 
+export type userChallenge = {
+  challenge: challenge
+}
+
 export type challenge = {
   id: string
   title: string;

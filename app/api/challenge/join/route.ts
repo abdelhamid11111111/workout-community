@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const challengeId = await req.json();
+  const { challengeId } = await req.json();
   if (!challengeId) {
     return NextResponse.json({ error: "no challenge found" }, { status: 400 });
   }

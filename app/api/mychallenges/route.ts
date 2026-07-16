@@ -12,6 +12,9 @@ export async function GET(req: NextRequest) {
     where: {
       userId: session.user.id,
     },
+    orderBy: {
+      joinedAt: "desc",
+    },
     include: {
       challenge: true,
     },
