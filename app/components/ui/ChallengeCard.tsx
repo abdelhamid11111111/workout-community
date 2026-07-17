@@ -6,7 +6,7 @@ import { Trophy, Calendar, TrendingUp, Upload } from "lucide-react";
 import Link from "next/link";
 import { userChallenge } from "@/app/types/types";
 import ProgressBar from "./ProgressBar";
-import { button } from "framer-motion/client";
+import { LiveTimeAgo } from "./LiveTimeAgo";
 
 const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
   const [workoutCount, setWorkoutCount] = useState<number | null>(null);
@@ -37,8 +37,12 @@ const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
       key={userChallenge.challenge.id}
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-slate-100"
+      className="relative bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-slate-100"
     >
+      <span className="absolute top-4 right-4 sm:top-5 sm:right-5 z-10 px-3 py-1 rounded-full backdrop-blur-sm text-sm font-medium text-slate-600">
+        Added <LiveTimeAgo date={userChallenge.joinedAt} />
+      </span>
+
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 p-6 lg:p-8">
         {/* Image */}
         <div className="relative w-full lg:w-56 lg:h-56 h-72 flex-shrink-0 rounded-xl overflow-hidden bg-slate-100">
@@ -152,6 +156,14 @@ const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
           {/* {!challenge.completedDate && ( */}
           <div className="flex flex-wrap gap-3">
             {workoutCount === Number(userChallenge.challenge.days) ? (
+              <button
+                disabled
+                className="inline-flex cursor-not-allowed items-center gap-2 px-6 py-3 bg-slate-100 text-slate-400  rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base"
+              >
+                <Upload className="w-4 h-4" />
+                Submit Workout
+              </button>
+            ) : (
               <Link
                 href={`/mychallenges/workout/${userChallenge.challenge.id}`}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base"
@@ -159,16 +171,6 @@ const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
                 <Upload className="w-4 h-4" />
                 Submit Workout
               </Link>
-            ) : (
-              <button disabled>
-                <Link
-                  href={`/mychallenges/workout/${userChallenge.challenge.id}`}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-400  rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base"
-                >
-                  <Upload className="w-4 h-4" />
-                  Submit Workout
-                </Link>
-              </button>
             )}
             <Link
               href={`/challenge/${userChallenge.challenge.title}`}

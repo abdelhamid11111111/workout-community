@@ -1,4 +1,3 @@
-
 export type FormType = {
   title: string;
   subtitle: string;
@@ -12,19 +11,21 @@ export type FormType = {
 };
 
 export type userChallenge = {
-  challenge: challenge
-  user: User
-}
+  id: string;
+  joinedAt: string;
+  challenge: challenge;
+  user: User;
+};
 
 export type User = {
-  id: string
-}
+  id: string;
+};
 
 export type challenge = {
-  id: string
+  id: string;
   title: string;
-  active: boolean
-  createdAt: string
+  active: boolean;
+  createdAt: string;
   subtitle: string;
   description: string;
   days: string;
@@ -33,18 +34,18 @@ export type challenge = {
   level: string;
   goals: string[];
   imgs: string[];
-}
+};
 
 export type ApiRes = {
-  data: challenge[],
-  pagination: pagination
-}
+  data: challenge[];
+  pagination: pagination;
+};
 
 export type pagination = {
-  totalPages: number,
-  currentPage: number,
-  hasNextPage: boolean,
-  hasPrevPage: boolean,
-  totalItems: number,
-  offset: number
-}
+  totalPages: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  totalItems: number;
+  offset: number;
+};

@@ -3,6 +3,11 @@ import { useEffect, useState } from "react";
 import CardsChallenges from "../components/ui/CardsChallenges";
 import ChallengeCard from "../components/ui/ChallengeCard"; // ← new file, below
 import { userChallenge } from "../types/types";
+import { Trophy } from "lucide-react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+
+
 
 const MyChallenges = () => {
   const [Challenge, setChallenge] = useState<userChallenge[]>([]);
@@ -26,7 +31,7 @@ const MyChallenges = () => {
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
           My Challenges
         </h1>
-        <p className="mt-3 text-lg text-slate-600">
+        <p className="mt-3 pb-4 text-lg text-slate-600">
           Track your progress and stay motivated
         </p>
 
@@ -38,7 +43,25 @@ const MyChallenges = () => {
               <ChallengeCard key={uc.challenge.id} userChallenge={uc} />
             ))
           ) : (
-            <p>No challenges yet.</p>
+             <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-2xl p-12 lg:p-16 text-center border border-slate-100 shadow-sm"
+              >
+                <Trophy className="w-20 h-20 text-slate-300 mx-auto mb-6" />
+                <h3 className="text-2xl font-bold text-slate-900 mb-3">
+                  No Challenges Yet
+                </h3>
+                <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
+                  Join a challenge to start tracking your progress
+                </p>
+                <Link
+                  href="/"
+                  className="inline-flex px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 text-base"
+                >
+                  Browse Challenges
+                </Link>
+              </motion.div>
           )}
         </div>
       </div>
