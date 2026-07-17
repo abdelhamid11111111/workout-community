@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  
   const challengesOfUser = await prisma.userChallenge.findMany({
     where: {
       userId: session.user.id,
@@ -16,9 +17,32 @@ export async function GET(req: NextRequest) {
       joinedAt: "desc",
     },
     include: {
-      challenge: true,
-      user: true
+      challenge: {
+        include: { // include means fetch data from other table
+          _count: {
+            select: {
+            workouts: { where: { userId: session.user.id } }, 
+          },
+          },
+        },
+      },
+      user: true,
     },
   });
-  return NextResponse.json(challengesOfUser, { status: 200 });
+
+  const result = challengesOfUser.map((uc) => {
+    const workoutCount = uc.challenge._count.workouts;
+    const isCompleted = workoutCount >= Number(uc.challenge.days);
+    const isActive = !isCompleted;
+
+    return {
+      ...uc,
+      workoutCount,
+      isCompleted,
+      isActive
+    };
+  });
+
+
+  return NextResponse.json(result, { status: 200 });
 }

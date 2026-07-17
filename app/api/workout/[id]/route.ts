@@ -155,19 +155,27 @@ export async function DELETE(req: NextRequest, {params}: {params: Promise<{id: s
       );
     }
 
-   await prisma.userChallenge.delete({
-    where: {
-      userId_challengeId: {
-        userId: userId,
-        challengeId: id
-      }
-    }
-  })
+    await prisma.$transaction([
+      prisma.workout.deleteMany({
+        where: {
+          userId: userId,
+          challengeId: id,
+        },
+      }),
+      prisma.userChallenge.delete({
+        where: {
+          userId_challengeId: {
+            userId: userId,
+            challengeId: id,
+          },
+        },
+      }),
+    ]);
 
-  return NextResponse.json(
-    { success: true },
-    { status: 200 },
-  );
+    return NextResponse.json(
+      { success: true },
+      { status: 200 },
+    );
   } catch(error){
     console.error('server error ', error);
     return NextResponse.json({error: 'server error'}, {status: 500})

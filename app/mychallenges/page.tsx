@@ -10,7 +10,6 @@ import ChallengeCardSkeleton from "../components/ui/ChallengeCardSkeleton";
 
 const MyChallenges = () => {
   const [userChallenge, setUserChallenge] = useState<userChallenge[]>([]);
-  const [matchMap, setMatchMap] = useState<Record<string, boolean>>({});
   const [tab, setTab] = useState<"active" | "completed">("active");
   const [loading, setLoading] = useState(true);
 
@@ -29,18 +28,9 @@ const MyChallenges = () => {
     fetchChallenges();
   }, []);
 
-// Parent
-const handleMatchChange = (id: string, matches: boolean) => {
-  setMatchMap((prev) => ({ ...prev, [`${tab}:${id}`]: matches }));
-};
-
-const noneMatchTab =
-  !loading &&
-  userChallenge.length > 0 &&
-  userChallenge.every((uc) => matchMap[`${tab}:${uc.challenge.id}`] === false);
-
-
-  
+  const filtered = userChallenge.filter((uc) =>
+    tab === "completed" ? uc.isCompleted : uc.isActive,
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 antialiased">
@@ -83,7 +73,7 @@ const noneMatchTab =
               <ChallengeCardSkeleton />
               <ChallengeCardSkeleton />
             </>
-          ) : userChallenge.length === 0 || noneMatchTab ? (
+          ) : filtered.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -91,10 +81,14 @@ const noneMatchTab =
             >
               <Trophy className="w-20 h-20 text-slate-300 mx-auto mb-6" />
               <h3 className="text-2xl font-bold text-slate-900 mb-3">
-                No Challenges Yet
+                {tab === "completed"
+                  ? "No Completed Challenges Yet"
+                  : "No Active Challenges"}
               </h3>
               <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
-                Join a challenge to start tracking your progress
+                {tab === "completed"
+                  ? "Finish a challenge to see it here"
+                  : "Join a challenge to start tracking your progress"}
               </p>
               <Link
                 href="/"
@@ -104,12 +98,10 @@ const noneMatchTab =
               </Link>
             </motion.div>
           ) : (
-            userChallenge.map((uc) => (
+            filtered.map((uc) => (
               <ChallengeCard
                 key={uc.challenge.id}
                 userChallenge={uc}
-                filter={tab}
-                onMatchChange={handleMatchChange}
                 onDelete={(id) =>
                   setUserChallenge((prev) =>
                     prev.filter((item) => item.challenge.id !== id),

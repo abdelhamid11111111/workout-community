@@ -15,7 +15,12 @@ export type userChallenge = {
   joinedAt: string;
   challenge: challenge;
   user: User;
+  isCompleted: string
+  isActive: string
+  workoutCount: number
 };
+
+
 
 export type User = {
   id: string;
