@@ -2,6 +2,9 @@
 CREATE TYPE "WorkoutTime" AS ENUM ('Morning', 'Afternoon', 'Evening', 'Night');
 
 -- CreateEnum
+CREATE TYPE "PersonalGoals" AS ENUM ('WeightLoss', 'MuscleGain', 'Endurance', 'Flexibility', 'GeneralFitness', 'StressRelief');
+
+-- CreateEnum
 CREATE TYPE "Level" AS ENUM ('beginner', 'intermediate', 'advanced');
 
 -- CreateEnum
@@ -17,16 +20,67 @@ CREATE TYPE "Feel" AS ENUM ('VeryBad', 'Bad', 'Neutral', 'Good', 'VeryGood');
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
+    "name" TEXT,
+    "banned" BOOLEAN DEFAULT false,
+    "banReason" TEXT,
+    "banExpires" TIMESTAMP(3),
     "email" TEXT NOT NULL,
-    "passwordHash" TEXT NOT NULL,
+    "emailVerified" BOOLEAN NOT NULL DEFAULT false,
+    "passwordHash" TEXT,
+    "role" TEXT NOT NULL DEFAULT 'user',
     "currentLevel" "Level",
-    "personalGoals" TEXT[],
-    "workoutTime" "WorkoutTime" NOT NULL,
+    "personalGoals" "PersonalGoals"[],
+    "workoutTime" "WorkoutTime",
     "profilePic" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Session" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "ipAddress" TEXT,
+    "userAgent" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Account" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "accountId" TEXT NOT NULL,
+    "providerId" TEXT NOT NULL,
+    "accessToken" TEXT,
+    "refreshToken" TEXT,
+    "idToken" TEXT,
+    "accessTokenExpiresAt" TIMESTAMP(3),
+    "refreshTokenExpiresAt" TIMESTAMP(3),
+    "scope" TEXT,
+    "password" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Verification" (
+    "id" TEXT NOT NULL,
+    "identifier" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Verification_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -65,7 +119,6 @@ CREATE TABLE "Workout" (
     "userId" TEXT NOT NULL,
     "challengeId" TEXT NOT NULL,
     "duration" INTEGER NOT NULL,
-    "description" TEXT NOT NULL,
     "caloriesBurned" INTEGER,
     "intensityLevel" "Intensity" NOT NULL,
     "feel" "Feel",
@@ -109,6 +162,15 @@ CREATE INDEX "User_email_idx" ON "User"("email");
 CREATE INDEX "User_username_idx" ON "User"("username");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Session_token_key" ON "Session"("token");
+
+-- CreateIndex
+CREATE INDEX "Session_userId_idx" ON "Session"("userId");
+
+-- CreateIndex
+CREATE INDEX "Account_userId_idx" ON "Account"("userId");
+
+-- CreateIndex
 CREATE INDEX "Challenge_category_idx" ON "Challenge"("category");
 
 -- CreateIndex
@@ -134,6 +196,12 @@ CREATE INDEX "Workout_challengeId_idx" ON "Workout"("challengeId");
 
 -- CreateIndex
 CREATE INDEX "Workout_loggedAt_idx" ON "Workout"("loggedAt");
+
+-- AddForeignKey
+ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "UserChallenge" ADD CONSTRAINT "UserChallenge_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
