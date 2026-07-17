@@ -7,10 +7,15 @@ import Link from "next/link";
 import { userChallenge } from "@/app/types/types";
 import ProgressBar from "./ProgressBar";
 import { LiveTimeAgo } from "./LiveTimeAgo";
+import { daysRemaining } from "@/lib/secondTimeAgo";
+
+
 
 const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
   const [workoutCount, setWorkoutCount] = useState<number | null>(null);
   const challenge = userChallenge.challenge;
+
+  const remaining = daysRemaining(userChallenge.joinedAt, Number(userChallenge.challenge.days));
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -79,7 +84,7 @@ const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
               </span>
               {userChallenge.challenge.days && (
                 <span className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-blue-50 text-blue-800 border border-blue-100">
-                  {/* {challenge.daysRemaining}  */}2 days left
+                  {Number(userChallenge.challenge.days) - remaining}  days left
                 </span>
               )}
             </div>
@@ -132,7 +137,7 @@ const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
               </div>
               <div>
                 <p className="text-xs text-slate-500">Days Remaining</p>
-                <p className="font-semibold text-slate-900">12</p>
+                <p className="font-semibold text-slate-900">{remaining}</p>
               </div>
             </div>
             {/* )} */}
