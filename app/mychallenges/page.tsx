@@ -1,14 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import CardsChallenges from "../components/ui/CardsChallenges";
-import ChallengeCard from "../components/ui/ChallengeCard"; // ← new file, below
+import ChallengeCard from "../components/ui/ChallengeCard"; 
 import { userChallenge } from "../types/types";
 import { Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import ChallengeCardSkeleton from "../components/ui/ChallengeCardSkeleton";
 
 const MyChallenges = () => {
   const [userChallenge, setUserChallenge] = useState<userChallenge[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchChallenges = async () => {
@@ -18,6 +20,8 @@ const MyChallenges = () => {
         setUserChallenge(data);
       } catch (error) {
         console.error("Failed", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchChallenges();
@@ -36,7 +40,12 @@ const MyChallenges = () => {
         <CardsChallenges />
 
         <div className="space-y-6 lg:space-y-8 mt-10">
-          {userChallenge.length > 0 ? (
+          {loading ? (
+            <>
+              <ChallengeCardSkeleton />
+              <ChallengeCardSkeleton />
+            </>
+          ) : userChallenge.length > 0 ? (
             userChallenge.map((uc) => (
               <ChallengeCard
                 key={uc.challenge.id}
