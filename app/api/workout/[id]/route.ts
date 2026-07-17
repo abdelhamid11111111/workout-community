@@ -78,6 +78,7 @@ export async function POST(
   }
 }
 
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -90,14 +91,45 @@ export async function GET(
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized: user not found" }, { status: 401 });
     }
-    
-    const countWorkout = await prisma.workout.count({
+
+    const workouts = await prisma.workout.findMany({
       where: {
         challengeId: id,
         userId: userId,
       },
+      select: {
+        loggedAt: true,
+      },
+      orderBy: {
+        loggedAt: "desc",
+      },
     });
-    return NextResponse.json({countWorkout}, {status: 201})
+
+    // Collect the distinct calendar days a workout was logged on (UTC date-only, "YYYY-MM-DD")
+    const loggedDays = new Set(
+      workouts.map((w) => new Date(w.loggedAt).toISOString().slice(0, 10)),
+    );
+
+    // Walk backward day-by-day from today counting an unbroken run of logged days.
+    // If today has no workout yet, start from yesterday so the streak isn't
+    // wrongly broken just because the user hasn't logged today's workout yet.
+    let currentStreak = 0;
+    const cursor = new Date();
+    cursor.setUTCHours(0, 0, 0, 0);
+
+    if (!loggedDays.has(cursor.toISOString().slice(0, 10))) {
+      cursor.setUTCDate(cursor.getUTCDate() - 1);
+    }
+
+    while (loggedDays.has(cursor.toISOString().slice(0, 10))) {
+      currentStreak++;
+      cursor.setUTCDate(cursor.getUTCDate() - 1);
+    }
+
+    return NextResponse.json(
+      { countWorkout: workouts.length, currentStreak },
+      { status: 200 },
+    );
   } catch (error) {
     {
       console.error("server error", error);
@@ -106,5 +138,38 @@ export async function GET(
         { status: 500 },
       );
     }
+  }
+}
+
+export async function DELETE(req: NextRequest, {params}: {params: Promise<{id: string}>}){
+  try{
+    const {id} = await params
+
+    const session = await auth.api.getSession({headers: await headers()})
+    const userId = session?.user?.id
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Unauthorized: user not found" },
+        { status: 401 },
+      );
+    }
+
+   await prisma.userChallenge.delete({
+    where: {
+      userId_challengeId: {
+        userId: userId,
+        challengeId: id
+      }
+    }
+  })
+
+  return NextResponse.json(
+    { success: true },
+    { status: 200 },
+  );
+  } catch(error){
+    console.error('server error ', error);
+    return NextResponse.json({error: 'server error'}, {status: 500})
   }
 }

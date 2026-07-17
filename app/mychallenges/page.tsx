@@ -7,17 +7,15 @@ import { Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
-
-
 const MyChallenges = () => {
-  const [Challenge, setChallenge] = useState<userChallenge[]>([]);
+  const [userChallenge, setUserChallenge] = useState<userChallenge[]>([]);
 
   useEffect(() => {
     const fetchChallenges = async () => {
       try {
         const res = await fetch("/api/mychallenges");
         const data = await res.json();
-        setChallenge(data);
+        setUserChallenge(data);
       } catch (error) {
         console.error("Failed", error);
       }
@@ -38,30 +36,38 @@ const MyChallenges = () => {
         <CardsChallenges />
 
         <div className="space-y-6 lg:space-y-8 mt-10">
-          {Challenge.length > 0 ? (
-            Challenge.map((uc) => (
-              <ChallengeCard key={uc.challenge.id} userChallenge={uc} />
+          {userChallenge.length > 0 ? (
+            userChallenge.map((uc) => (
+              <ChallengeCard
+                key={uc.challenge.id}
+                userChallenge={uc}
+                onDelete={(id) =>
+                  setUserChallenge((prev) =>
+                    prev.filter((item) => item.challenge.id !== id),
+                  )
+                }
+              />
             ))
           ) : (
-             <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-2xl p-12 lg:p-16 text-center border border-slate-100 shadow-sm"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl p-12 lg:p-16 text-center border border-slate-100 shadow-sm"
+            >
+              <Trophy className="w-20 h-20 text-slate-300 mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">
+                No Challenges Yet
+              </h3>
+              <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
+                Join a challenge to start tracking your progress
+              </p>
+              <Link
+                href="/"
+                className="inline-flex px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 text-base"
               >
-                <Trophy className="w-20 h-20 text-slate-300 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-slate-900 mb-3">
-                  No Challenges Yet
-                </h3>
-                <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
-                  Join a challenge to start tracking your progress
-                </p>
-                <Link
-                  href="/"
-                  className="inline-flex px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 text-base"
-                >
-                  Browse Challenges
-                </Link>
-              </motion.div>
+                Browse Challenges
+              </Link>
+            </motion.div>
           )}
         </div>
       </div>

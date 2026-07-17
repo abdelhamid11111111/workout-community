@@ -9,13 +9,20 @@ import ProgressBar from "./ProgressBar";
 import { LiveTimeAgo } from "./LiveTimeAgo";
 import { daysRemaining } from "@/lib/secondTimeAgo";
 
+type ChallengeCardProps = {
+  userChallenge: userChallenge;
+  onDelete: (id: string) => void;
+};
 
-
-const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
+const ChallengeCard = ({ userChallenge, onDelete }: ChallengeCardProps) => {
   const [workoutCount, setWorkoutCount] = useState<number | null>(null);
   const challenge = userChallenge.challenge;
+  const [currentStreak, setCurrentStreak] = useState<number | null>(null);
 
-  const remaining = daysRemaining(userChallenge.joinedAt, Number(userChallenge.challenge.days));
+  const remaining = daysRemaining(
+    userChallenge.joinedAt,
+    Number(userChallenge.challenge.days),
+  );
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -23,6 +30,7 @@ const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
         const res = await fetch(`/api/workout/${challenge.id}`);
         const data = await res.json();
         setWorkoutCount(data.countWorkout);
+        setCurrentStreak(data.currentStreak);
       } catch (error) {
         console.error("Failed", error);
       }
@@ -36,6 +44,21 @@ const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
           ((workoutCount ?? 0) / Number(userChallenge.challenge.days)) * 100,
         )
       : 0;
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/workout/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        throw new Error(`Delete failed: ${res.status}`);
+      } else {
+        onDelete(id);
+      }
+    } catch (error) {
+      console.error("server error ", error);
+    }
+  };
 
   return (
     <motion.div
@@ -84,7 +107,7 @@ const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
               </span>
               {userChallenge.challenge.days && (
                 <span className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-blue-50 text-blue-800 border border-blue-100">
-                  {Number(userChallenge.challenge.days) - remaining}  days left
+                  {Number(userChallenge.challenge.days) - remaining} days left
                 </span>
               )}
             </div>
@@ -125,7 +148,9 @@ const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
               </div>
               <div>
                 <p className="text-xs text-slate-500">Current Streak</p>
-                <p className="font-semibold text-slate-900">22 days</p>
+                <p className="font-semibold text-slate-900">
+                  {currentStreak ?? 0} {currentStreak === 1 ? "day" : "days"}
+                </p>
               </div>
             </div>
             {/* )} */}
@@ -140,30 +165,14 @@ const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
                 <p className="font-semibold text-slate-900">{remaining}</p>
               </div>
             </div>
-            {/* )} */}
-
-            {/* {challenge.completedDate && (
-                        <div className="flex items-center gap-3">
-                          <div className="p-2.5 rounded-lg bg-slate-100">
-                            <Calendar className="w-5 h-5 text-slate-600" />
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-500">Completed</p>
-                            <p className="font-semibold text-slate-900">
-                              {challenge.completedDate}
-                            </p>
-                          </div>
-                        </div>
-                      )} */}
           </div>
 
           {/* Buttons – only shown for active */}
-          {/* {!challenge.completedDate && ( */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {workoutCount === Number(userChallenge.challenge.days) ? (
               <button
                 disabled
-                className="inline-flex cursor-not-allowed items-center gap-2 px-6 py-3 bg-slate-100 text-slate-400  rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base"
+                className="inline-flex cursor-not-allowed items-center gap-2 px-6 py-3 bg-slate-100 text-slate-400 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base"
               >
                 <Upload className="w-4 h-4" />
                 Submit Workout
@@ -177,20 +186,21 @@ const ChallengeCard = ({ userChallenge }: { userChallenge: userChallenge }) => {
                 Submit Workout
               </Link>
             )}
+
             <Link
               href={`/challenge/${userChallenge.challenge.title}`}
               className="inline-flex items-center px-6 py-3 bg-white text-emerald-700 border-2 border-emerald-200 hover:border-emerald-400 rounded-xl font-semibold transition-all duration-200 text-sm sm:text-base"
             >
               View Details
             </Link>
-            <div
-              // href={`/challenge/${challenge.id}`}
-              className="inline-flex items-center px-6 py-3 bg-white text-emerald-700 border-2 border-emerald-200 hover:border-emerald-400 rounded-xl font-semibold transition-all duration-200 text-sm sm:text-base"
+
+            <button
+              onClick={() => handleDelete(userChallenge.challenge.id)}
+              className="inline-flex items-center px-6 py-3 bg-white text-red-500 border-2 border-red-100 hover:bg-red-50 hover:border-red-300 hover:text-red-600 rounded-xl font-semibold transition-all duration-200 text-sm sm:text-base ml-auto"
             >
-              Give Up
-            </div>
+              Leave Challenge
+            </button>
           </div>
-          {/* )} */}
         </div>
 
         {/* Completed side info */}
