@@ -8,7 +8,12 @@ interface ProgressBarProps {
   color?: string;
 }
 
-const ProgressBar = ({ progress, height = 'h-2', showLabel = false, color = 'bg-primary' }: ProgressBarProps) => {
+const ProgressBar = ({
+  progress,
+  height = 'h-2',
+  showLabel = false,
+  color = 'bg-emerald-600', 
+}: ProgressBarProps) => {
   const clampedProgress = Math.min(100, Math.max(0, progress))
 
   return (
