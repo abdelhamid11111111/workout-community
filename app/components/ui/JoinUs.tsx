@@ -3,27 +3,28 @@ import React from "react";
 
 const JoinUs = () => {
   return (
-    <div className="relative h-80 lg:h-80 bg-slate-950 overflow-hidden mt-12 lg:mt-20">
-      <div className="absolute inset-0 bg-linear-to-br from-amber-600/85 via-orange-600/75 to-amber-700/80" />
+    <div className="relative bg-slate-950 overflow-hidden mt-12 lg:mt-20">
+  <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-orange-600" />
 
-      <div className="relative h-full flex items-center">
-        <div className="max-w-5xl mx-auto text-center px-6 lg:px-8 w-full">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-5 text-white tracking-tight">
-            Ready to Start Your Journey?
-          </h2>
-          <p className="text-lg lg:text-xl mb-8 text-white/90 font-light max-w-3xl mx-auto">
-            Join a challenge today and become part of our thriving fitness
-            community
-          </p>
-          <Link
-            href="/my-challenges"
-            className="inline-block px-10 py-4 bg-white text-amber-700 rounded-full font-bold shadow-xl hover:shadow-2xl hover:bg-slate-50 transition-all duration-300 text-lg"
-          >
-            Get Started Now
-          </Link>
-        </div>
+  <div className="relative max-w-5xl mx-auto px-6 lg:px-8 py-10 lg:py-12">
+    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="text-center md:text-left">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          Ready to start your journey?
+        </h2>
+        <p className="text-white/85 mt-1 text-base">
+          Join a challenge and become part of our fitness community.
+        </p>
       </div>
+      <Link
+        href="/sign-up"
+        className="shrink-0 inline-flex items-center gap-2 px-7 py-3 bg-white text-amber-700 rounded-full font-bold hover:bg-slate-50 transition-colors"
+      >
+        Get started
+      </Link>
     </div>
+  </div>
+</div>
   );
 };
 

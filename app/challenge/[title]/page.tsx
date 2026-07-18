@@ -15,8 +15,11 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import JoinedSuccessfully from "@/app/components/ui/challengePage/JoinedSuccessfully";
+import { authClient } from "@/lib/auth-client";
 
 const ChallengePage = () => {
+  const { data: session } = authClient.useSession();
+
   const { title } = useParams();
   const [challenge, setChallenge] = useState<null | challenge>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -27,14 +30,17 @@ const ChallengePage = () => {
   const [pics, setPics] = useState<string[]>([]);
   const [goals, setGoals] = useState<string[]>([]);
   const router = useRouter();
+  const [totalUsr, setTotalUsr] = useState(0)
 
   const fetchChallenge = async () => {
     try {
       const res = await fetch(`/api/challenge/${title}`);
       const data = await res.json();
-      setChallenge(data);
-      setGoals(data.goals);
-      setPics(data.imgs);
+      setChallenge(data.challenge);
+      setGoals(data.goals ?? []);
+      setPics(data.imgs ?? []);
+      setTotalUsr(data.totalUsr)
+
     } catch (error) {
       console.error("Error ", error);
     }
@@ -65,23 +71,32 @@ const ChallengePage = () => {
     fetchChallenges();
   }, [challenge?.id]);
 
+  const joined = UserChallenge && session
+
+
   const handleJoin = async () => {
+    if (!session) {
+      router.push("/sign-in");
+    }
     try {
       const res = await fetch("/api/challenge/join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ challengeId: challenge?.id }),
       });
-
-      if (res.ok) {
-        setUserChallenge({} as userChallenge); // optimistically flip button state too
-        setShowSuccessModal(true);
-        setTimeout(() => {
+      if (!session) {
+        router.push("/sign-in");
+      } else {
+        if (res.ok) {
+          setUserChallenge({} as userChallenge); // optimistically flip button state too
+          setShowSuccessModal(true);
+          setTimeout(() => {
+            router.push("/mychallenges");
+          }, 2000); // let them see the modal for 2s before redirecting
+        } else if (res.status === 409) {
+          // already joined — no need for a "success" modal, just send them along
           router.push("/mychallenges");
-        }, 2000); // let them see the modal for 2s before redirecting
-      } else if (res.status === 409) {
-        // already joined — no need for a "success" modal, just send them along
-        router.push("/mychallenges");
+        }
       }
     } catch (error) {
       console.error("Failed to join", error);
@@ -127,7 +142,7 @@ const ChallengePage = () => {
                   <span className="text-orange-500">
                     <Users className="w-4 h-4" />
                   </span>
-                  1,247 Participants
+                  {totalUsr} Participants
                 </div>
                 <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
                   <span className="text-orange-500">
@@ -229,7 +244,7 @@ const ChallengePage = () => {
                         Participants
                       </span>
                       <span className="font-semibold text-sm text-slate-800">
-                        1,247
+                        {totalUsr}
                       </span>
                     </div>
                     <div className="flex items-center justify-between py-3">
@@ -249,7 +264,7 @@ const ChallengePage = () => {
                     >
                       Checking...
                     </button>
-                  ) : UserChallenge ? (
+                  ) : joined ? (
                     <button
                       disabled
                       className="w-full py-3 px-6 rounded-xl font-bold text-sm bg-slate-100 text-slate-400 cursor-not-allowed"
@@ -277,7 +292,7 @@ const ChallengePage = () => {
           </div>
         </div>
       )}
-        {showSuccessModal && (
+      {showSuccessModal && (
         <JoinedSuccessfully
           challengeTitle={challenge?.title ?? ""}
           onClose={() => router.push("/mychallenges")} // clicking outside also just sends them there

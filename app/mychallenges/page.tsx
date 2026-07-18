@@ -28,9 +28,17 @@ const MyChallenges = () => {
     fetchChallenges();
   }, []);
 
+
+
   const filtered = userChallenge.filter((uc) =>
     tab === "completed" ? uc.isCompleted : uc.isActive,
   );
+
+  const totalActive = userChallenge.filter((uc) => uc.isActive) || []
+  const countActive = totalActive.length
+
+  const totalCompleted = userChallenge.filter((uc) => uc.isCompleted) || []
+  const countCompleted = totalCompleted.length
 
   return (
     <div className="min-h-screen bg-slate-50 antialiased">
@@ -42,7 +50,7 @@ const MyChallenges = () => {
           Track your progress and stay motivated
         </p>
 
-        <CardsChallenges />
+        <CardsChallenges countActive={countActive} countCompleted={countCompleted}/>
 
         <div className="flex gap-3 mb-6">
           <button
