@@ -24,7 +24,7 @@ const FeaturedChallenge = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("/api/FeaturedChallenge");
+        const res = await fetch("/api/homepage/FeaturedChallenge");
         const data = await res.json();
         setChallenges(data);
       } catch (error) {
