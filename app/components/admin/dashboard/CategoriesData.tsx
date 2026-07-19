@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Heart } from "lucide-react";

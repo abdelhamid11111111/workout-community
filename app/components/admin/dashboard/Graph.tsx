@@ -11,23 +11,23 @@ import {
   Area,
 } from "recharts";
 
-type MonthlyJoin = { month: string; joins: number };
+type DailyJoin = { day: string; joins: number };
 
 interface GraphProps {
-  data: MonthlyJoin[];
+  data: DailyJoin[];
   totalJoins: number;
-  avgPerMonth: number;
-  vsLastMonth: number;
+  avgPerDay: number;
+  vsLastWeek: number;
 }
 
-const Graph = ({ data, totalJoins, avgPerMonth, vsLastMonth }: GraphProps) => {
+const Graph = ({ data, totalJoins, avgPerDay, vsLastWeek }: GraphProps) => {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 lg:p-6 shadow-sm mb-6">
       <h3 className="font-bold text-slate-800 mb-1 flex items-center gap-2 text-sm lg:text-base">
         <Trophy className="w-4 h-4 text-emerald-500" /> Users Joining Challenges
       </h3>
       <p className="text-xs text-slate-400 mb-4">
-        Total new challenge joins per month
+        Joins this week (Mon–Sun)
       </p>
       <ResponsiveContainer width="100%" height={200}>
         <AreaChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
@@ -38,7 +38,7 @@ const Graph = ({ data, totalJoins, avgPerMonth, vsLastMonth }: GraphProps) => {
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-          <XAxis dataKey="month" tick={{ fill: "#94a3b8", fontSize: 10 }} axisLine={false} tickLine={false} />
+          <XAxis dataKey="day" tick={{ fill: "#94a3b8", fontSize: 10 }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} axisLine={false} tickLine={false} />
           <Tooltip
             content={({ active, payload, label }) =>
@@ -69,15 +69,15 @@ const Graph = ({ data, totalJoins, avgPerMonth, vsLastMonth }: GraphProps) => {
           <div className="text-xs text-slate-400 mt-0.5">Total Joins</div>
         </div>
         <div className="text-center">
-          <div className="text-lg lg:text-xl font-extrabold text-indigo-600">{avgPerMonth}</div>
-          <div className="text-xs text-slate-400 mt-0.5">Avg / Month</div>
+          <div className="text-lg lg:text-xl font-extrabold text-indigo-600">{avgPerDay}</div>
+          <div className="text-xs text-slate-400 mt-0.5">Avg / Day</div>
         </div>
         <div className="text-center">
           <div className="text-lg lg:text-xl font-extrabold text-amber-600">
-            {vsLastMonth >= 0 ? "+" : ""}
-            {vsLastMonth}%
+            {vsLastWeek >= 0 ? "+" : ""}
+            {vsLastWeek}%
           </div>
-          <div className="text-xs text-slate-400 mt-0.5">vs Last Month</div>
+          <div className="text-xs text-slate-400 mt-0.5">vs Last Week</div>
         </div>
       </div>
     </div>

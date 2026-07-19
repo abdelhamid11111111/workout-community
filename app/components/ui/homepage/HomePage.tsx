@@ -9,27 +9,29 @@ import Challenges from "../../../components/ui/Challenges";
 import Footer from "../../../components/ui/Footer";
 import JoinUs from "../../../components/ui/JoinUs";
 import { Categories, Level } from "@/generated/prisma/enums";
+import { authClient } from "@/lib/auth-client";
 
 type initialSession = {
-  name: string | null,
-  email: string,
-  profilePic?: string | null
-}
+  name: string | null;
+  email: string;
+  profilePic?: string | null;
+};
 
 type Props = {
-  initialSession: {user: initialSession} | null
-}
+  initialSession: { user: initialSession } | null;
+};
 
-
-const ChallengesHome = ({initialSession}: Props) => {
-
+const ChallengesHome = ({ initialSession }: Props) => {
   const categories = Object.values(Categories);
   const levels = Object.values(Level);
+
+  const { data: session } = authClient.useSession();
+  const userId = session?.user?.id;
 
   return (
     <div className="min-h-screen bg-slate-50 antialiased">
       {/* Navbar – cleaner, more premium feel */}
-      <Navbar initialSession={initialSession}/>
+      <Navbar initialSession={initialSession} />
 
       {/* Hero – taller on mobile, softer overlay, better typography */}
       <div className="relative h-[85vh] md:h-[70vh] lg:h-[90vh] bg-slate-950 overflow-hidden">
@@ -89,7 +91,7 @@ const ChallengesHome = ({initialSession}: Props) => {
       <Challenges categories={categories} levels={levels} />
 
       {/* CTA Footer – richer gradient, better contrast */}
-      <JoinUs />
+      {userId ?? <JoinUs />}
 
       {/* Footer */}
       <Footer />

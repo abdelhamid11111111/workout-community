@@ -34,8 +34,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "**/*.mts",
+    "app/components/ui/AnimatedCounter.jsx",
     ".next/dev/types/**/*.ts"
-, "app/components/ui/AnimatedCounter.jsx"  ],
+  ],
   "exclude": [
     "node_modules"
   ]
