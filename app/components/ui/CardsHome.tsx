@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, Users, Calendar, Trophy } from "lucide-react";
+import { AnimatedCounter } from "./AnimatedCounter";
 
 const CardsHome = () => {
   const [totalChallenges, setTotalChallenges] = useState(0);
@@ -17,7 +18,7 @@ const CardsHome = () => {
       setTotalJoins(data.totalJoins);
       SetTotalWorkouts(data.totalWorkout);
     };
-    fetchData()
+    fetchData();
   }, []);
 
   return (
@@ -39,7 +40,10 @@ const CardsHome = () => {
                 Active Challenges
               </p>
               <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-                {totalChallenges}
+                <AnimatedCounter
+                  format={(v: number) => `${v.toLocaleString()}`}
+                  value={totalChallenges}
+                />
               </p>
             </div>
           </div>
@@ -61,7 +65,10 @@ const CardsHome = () => {
                 Total Participants
               </p>
               <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-                {participants}
+                <AnimatedCounter
+                  format={(v: number) => `${v.toLocaleString()}`}
+                  value={participants}
+                />
               </p>
             </div>
           </div>
@@ -80,10 +87,13 @@ const CardsHome = () => {
             </div>
             <div>
               <p className="text-sm text-slate-600 font-medium">
-                Total Joining 
+                Total Joining
               </p>
               <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-                {totalJoins}
+                <AnimatedCounter
+                  format={(v: number) => `${v.toLocaleString()}`}
+                  value={totalJoins}
+                />
               </p>
             </div>
           </div>
@@ -101,9 +111,14 @@ const CardsHome = () => {
               <Trophy className="w-7 h-7 text-amber-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-600 font-medium">Total Workouts</p>
+              <p className="text-sm text-slate-600 font-medium">
+                Total Workouts
+              </p>
               <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-                {totalWorkouts}
+                <AnimatedCounter
+                  format={(v: number) => `${v.toLocaleString()}`}
+                  value={totalWorkouts}
+                />
               </p>
             </div>
           </div>

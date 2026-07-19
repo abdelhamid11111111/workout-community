@@ -1,4 +1,3 @@
-"use client";
 import AvgCalories from "@/app/components/admin/dashboard/AvgCalories";
 import Cards from "@/app/components/admin/dashboard/Cards";
 import CategoriesData from "@/app/components/admin/dashboard/CategoriesData";
@@ -11,16 +10,17 @@ import UsrLevel from "@/app/components/admin/dashboard/UsrLevel";
 import WorkoutTime from "@/app/components/admin/dashboard/WorkoutTime";
 import Sidebar from "@/app/components/admin/SideBar";
 
+import { getUserJoinsByMonth } from "@/lib/queries/getUserJoins";
 
+export default async function Dashboard() {
+  const joinsData = await getUserJoinsByMonth(8);
 
-export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar />
 
       <div className="flex-1 pb-16 min-w-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
-
           {/* Header */}
           <div className="mb-6 lg:mb-8">
             <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900">
@@ -32,43 +32,41 @@ export default function Dashboard() {
           </div>
 
           {/* KPI Cards */}
-          <Cards/>
+          <Cards />
 
           {/* Users Joining Challenges Over Time */}
-          <Graph/>
+
+          <Graph {...joinsData} />
 
           {/* Category Pie + Feel Distribution */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6">
-
             {/* Most Loved Categories */}
-            <CategoriesData/>
+            <CategoriesData />
 
             {/* Post-Workout Feel */}
-            <PostWorkout/>
+            <PostWorkout />
           </div>
 
           {/* Intensity + User Levels + Workout Time */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6">
-
             {/* Intensity */}
-            <Intensity/>
+            <Intensity />
 
             {/* User Levels */}
-            <UsrLevel/>
+            <UsrLevel />
 
             {/* Workout Time */}
-            <WorkoutTime/>
-
+            <WorkoutTime />
           </div>
 
           {/* Avg Calories by Category */}
-          <AvgCalories/>
+          <AvgCalories />
 
           {/* Top Users Table */}
-          <TopUsrs/>
+          <TopUsrs />
 
           {/* Top Challenges Table */}
-          <TopChall/>
+          <TopChall />
         </div>
       </div>
     </div>
