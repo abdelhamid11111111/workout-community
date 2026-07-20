@@ -1,5 +1,5 @@
-"use client"
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import {
   Cell,
   Tooltip,
@@ -12,6 +12,26 @@ import {
 } from "recharts";
 
 const PostWorkout = () => {
+  const [totalBad, setTotalBad] = useState(0);
+  const [totalVeryBad, setTotalVeryBad] = useState(0);
+  const [totalGood, setTotalGood] = useState(0);
+  const [totalVeryGood, setTotalVeryGood] = useState(0);
+  const [totalNeutral, setTotalNeutral] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch("/api/admin/dashboard/postwork");
+      const data = await res.json();
+      setTotalBad(data.totalBad ?? 0);
+      setTotalVeryBad(data.totalVeryBad ?? 0);
+      setTotalGood(data.totalGood ?? 0);
+      setTotalVeryGood(data.totalVeryGood ?? 0);
+      setTotalNeutral(data.totalNeutral ?? 0);
+    };
+    fetchData();
+  }, []);
+
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 lg:p-6 shadow-sm">
       <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2 text-sm lg:text-base">
@@ -20,11 +40,11 @@ const PostWorkout = () => {
       <ResponsiveContainer width="100%" height={160}>
         <BarChart
           data={[
-            { feel: "V.Good", count: 3210 },
-            { feel: "Good", count: 2840 },
-            { feel: "Neutral", count: 1420 },
-            { feel: "Bad", count: 620 },
-            { feel: "V.Bad", count: 180 },
+            { feel: "V.Good", count: totalVeryGood },
+            { feel: "Good", count: totalGood },
+            { feel: "Neutral", count: totalNeutral },
+            { feel: "Bad", count: totalBad },
+            { feel: "V.Bad", count: totalVeryBad },
           ]}
           margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
         >
