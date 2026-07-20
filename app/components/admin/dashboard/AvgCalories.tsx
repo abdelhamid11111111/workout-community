@@ -1,5 +1,5 @@
-"use client"
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import { TrendingUp } from "lucide-react";
 import {
   Cell,
@@ -12,7 +12,42 @@ import {
   CartesianGrid,
 } from "recharts";
 
+type CategoryBar = {
+  category: string;
+  avg: number;
+  color: string;
+};
+
+// fixed order + color so the bars stay stable regardless of what the API returns
+const CATEGORY_CONFIG: { key: string; label: string; color: string }[] = [
+  { key: "HIIT", label: "HIIT", color: "#f97316" },
+  { key: "Cardio", label: "Cardio", color: "#f43f5e" },
+  { key: "Running", label: "Running", color: "#14b8a6" },
+  { key: "Strength", label: "Strength", color: "#6366f1" },
+  { key: "Pilates", label: "Pilates", color: "#ec4899" },
+  { key: "Sports", label: "Sports", color: "#eab308" },
+  { key: "Yoga", label: "Yoga", color: "#a855f7" },
+  { key: "Stretching", label: "Stretch", color: "#84cc16" },
+];
+
 const AvgCalories = () => {
+  const [avgByCategory, setAvgByCategory] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch("/api/admin/dashboard/avgCalories");
+      const data = await res.json();
+      setAvgByCategory(data.avgByCategory ?? {});
+    };
+    fetchData();
+  }, []);
+
+  const chartData: CategoryBar[] = CATEGORY_CONFIG.map(({ key, label, color }) => ({
+    category: label,
+    avg: avgByCategory[key] ?? 0,
+    color,
+  }));
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 lg:p-6 shadow-sm mb-6">
       <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2 text-sm lg:text-base">
@@ -20,18 +55,7 @@ const AvgCalories = () => {
         per Category
       </h3>
       <ResponsiveContainer width="100%" height={180}>
-        <BarChart
-          data={[
-            { category: "HIIT", avg: 480 },
-            { category: "Cardio", avg: 410 },
-            { category: "Running", avg: 390 },
-            { category: "Strength", avg: 320 },
-            { category: "Pilates", avg: 240 },
-            { category: "Yoga", avg: 190 },
-            { category: "Stretch", avg: 120 },
-          ]}
-          margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
-        >
+        <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
           <CartesianGrid
             strokeDasharray="3 3"
             stroke="#f1f5f9"
@@ -63,13 +87,9 @@ const AvgCalories = () => {
             }
           />
           <Bar dataKey="avg" radius={[6, 6, 0, 0]}>
-            <Cell fill="#f97316" />
-            <Cell fill="#f43f5e" />
-            <Cell fill="#14b8a6" />
-            <Cell fill="#6366f1" />
-            <Cell fill="#ec4899" />
-            <Cell fill="#a855f7" />
-            <Cell fill="#84cc16" />
+            {chartData.map((entry) => (
+              <Cell key={entry.category} fill={entry.color} />
+            ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
