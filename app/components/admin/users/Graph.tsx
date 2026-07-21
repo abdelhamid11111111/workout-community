@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import {
   AreaChart,
@@ -10,28 +11,43 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+type DailySignup = { day: string; users: number };
+
 const Graph = () => {
+  const [data, setData] = useState<DailySignup[]>([]);
+  const [totalThisWeek, setTotalThisWeek] = useState(0);
+  const [avgPerDay, setAvgPerDay] = useState(0);
+  const [peakDay, setPeakDay] = useState("-");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/admin/users/graph");
+        if (!response.ok) {
+          throw new Error("Failed to load users graph data");
+        }
+
+        const result = await response.json();
+        setData(result.data ?? []);
+        setTotalThisWeek(result.totalThisWeek ?? 0);
+        setAvgPerDay(result.avgPerDay ?? 0);
+        setPeakDay(result.peakDay ?? "-");
+      } catch (error) {
+        console.error("Error fetching users graph data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 lg:p-6 shadow-sm mb-6">
       <h3 className="font-bold text-slate-800 mb-1 flex items-center gap-2 text-sm lg:text-base">
-        <Users className="w-4 h-4 text-indigo-500" /> New Users — Last 7 Days
+        <Users className="w-4 h-4 text-indigo-500" /> New Users — This Week
       </h3>
-      <p className="text-xs text-slate-400 mb-4">
-        Daily signups from Mar 11 to Mar 17
-      </p>
+      <p className="text-xs text-slate-400 mb-4">Daily signups (Mon–Sun)</p>
       <ResponsiveContainer width="100%" height={210}>
-        <AreaChart
-          data={[
-            { day: "Mon", users: 9 },
-            { day: "Tue", users: 14 },
-            { day: "Wed", users: 11 },
-            { day: "Thu", users: 18 },
-            { day: "Fri", users: 22 },
-            { day: "Sat", users: 7 },
-            { day: "Sun", users: 6 },
-          ]}
-          margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
-        >
+        <AreaChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="userGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
@@ -80,19 +96,19 @@ const Graph = () => {
       <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-100">
         <div className="text-center">
           <div className="text-lg lg:text-xl font-extrabold text-indigo-600">
-            87
+            {totalThisWeek}
           </div>
           <div className="text-xs text-slate-400 mt-0.5">Total This Week</div>
         </div>
         <div className="text-center">
           <div className="text-lg lg:text-xl font-extrabold text-emerald-600">
-            12.4
+            {avgPerDay}
           </div>
           <div className="text-xs text-slate-400 mt-0.5">Avg / Day</div>
         </div>
         <div className="text-center">
           <div className="text-lg lg:text-xl font-extrabold text-amber-600">
-            Fri
+            {peakDay}
           </div>
           <div className="text-xs text-slate-400 mt-0.5">Peak Day</div>
         </div>
