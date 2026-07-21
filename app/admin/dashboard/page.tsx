@@ -67,9 +67,6 @@ export default async function Dashboard() {
           {/* Avg Calories by Category */}
           <AvgCalories />
 
-          {/* Top Users Table */}
-          <TopUsrs />
-
           {/* Top Challenges Table */}
           <TopChall />
         </div>

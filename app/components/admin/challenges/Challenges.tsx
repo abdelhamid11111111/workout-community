@@ -194,9 +194,12 @@ export default function ChallengesPage({ categories, levels }: Props) {
   };
 
   useEffect(() => {
-    setSearch(searchParams.get("search") || "");
-    setCurrentPage(Number(searchParams.get("page") || "1"));
-    fetchChallenges(searchParams);
+    const load = () => {
+      setSearch(searchParams.get("search") || "");
+      setCurrentPage(Number(searchParams.get("page") || "1"));
+      fetchChallenges(searchParams);
+    };
+    load();
   }, [searchParams]);
 
   const goToPage = (page: number) => {

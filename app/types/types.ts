@@ -22,13 +22,10 @@ export type userChallenge = {
 
 
 
-export type User = {
-  id: string;
-};
-
 export type challenge = {
   id: string;
   title: string;
+  userChallenges: userChallenge[]
   active: boolean;
   createdAt: string;
   subtitle: string;
@@ -39,12 +36,24 @@ export type challenge = {
   level: string;
   goals: string[];
   imgs: string[];
+  _count?: {
+    userChallenges: number;
+  };
 };
 
 export type ApiRes = {
   data: challenge[];
   pagination: pagination;
 };
+
+
+
+export type User = {
+  id: string;
+};
+
+
+
 
 export type pagination = {
   totalPages: number;
