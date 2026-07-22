@@ -1,7 +1,16 @@
 import React from "react";
 import { MousePointerClick, Clock, Users, ArrowUpRight } from "lucide-react";
 
-const Cards = () => {
+interface CardsProps {
+  data?: {
+    totalVisitors: string;
+    uniqueSessions: string;
+    avgSession: string;
+    bounceRate: string;
+  };
+}
+
+const Cards = ({ data }: CardsProps) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
@@ -12,7 +21,7 @@ const Cards = () => {
           Total Visitors
         </div>
         <div className="text-3xl font-extrabold mt-1 mb-2 text-indigo-500">
-          12,847
+          {data?.totalVisitors ?? "0"}
         </div>
       </div>
 
@@ -24,7 +33,7 @@ const Cards = () => {
           Unique Sessions
         </div>
         <div className="text-3xl font-extrabold mt-1 mb-2 text-emerald-500">
-          9,321
+          {data?.uniqueSessions ?? "0"}
         </div>
       </div>
 
@@ -36,7 +45,7 @@ const Cards = () => {
           Avg. Session
         </div>
         <div className="text-3xl font-extrabold mt-1 mb-2 text-amber-500">
-          2m 41s
+          {data?.avgSession ?? "0m 0s"}
         </div>
       </div>
 
@@ -48,7 +57,7 @@ const Cards = () => {
           Bounce Rate
         </div>
         <div className="text-3xl font-extrabold mt-1 mb-2 text-rose-500">
-          38.4%
+          {data?.bounceRate ?? "0%"}
         </div>
       </div>
     </div>
