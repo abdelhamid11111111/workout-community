@@ -1,7 +1,117 @@
-import { ChevronDown, Filter, Search } from "lucide-react";
-import React from "react";
+import { ApiRes2, pagination, User } from "@/app/types/types";
+import { ChevronDown, Filter, Search, UserIcon, Users, X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { levelStyles } from "../../../colors/data";
+
+const ITEMS_PER_PAGE = 8;
 
 const Table = () => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [paginationInfo, setPaginationInfo] = useState<pagination | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const fetchData = async (params: URLSearchParams) => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/admin/users/table?${params.toString()}`);
+        const data: ApiRes2 = await res.json();
+        setUsers(data.data);
+        setPaginationInfo(data.pagination);
+      } catch (error) {
+        console.error("failed loading", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData(searchParams);
+  }, [searchParams]);
+
+  useEffect(() => {
+    const load = () => {
+      setSearch(searchParams.get("search") || "");
+      setCurrentPage(Number(searchParams.get("page") || "1"));
+    };
+    load();
+  }, [searchParams]);
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && paginationInfo && paginationInfo.totalPages >= page) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("page", String(page));
+      router.push(`/admin/users?${params.toString()}`, {
+        scroll: false,
+      });
+    }
+  };
+
+  const clearSearch = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    params.set("page", "1");
+    router.push(`/admin/users?${params.toString()}`, { scroll: false });
+  };
+
+  const clearAllFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    params.delete("level");
+    params.set("page", "1");
+    router.push(`/admin/users?${params.toString()}`, { scroll: false });
+  };
+
+  const generatePages = () => {
+    if (!paginationInfo) return [];
+    const { currentPage, totalPages } = paginationInfo;
+    const items: (string | number)[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) items.push(i);
+    } else {
+      items.push(1);
+      if (currentPage <= 3) {
+        items.push(2, 3, 4, "...", totalPages);
+      } else if (currentPage > totalPages - 2) {
+        items.push(
+          "...",
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages,
+        );
+      } else {
+        items.push(
+          "...",
+          currentPage - 1,
+          currentPage,
+          currentPage + 1,
+          "...",
+          totalPages,
+        );
+      }
+    }
+    return items;
+  };
+
+  const isEmpty = !loading && users.length === 0;
+  const hasActiveFilters = Boolean(
+    searchParams.get("search") || searchParams.get("level"),
+  );
+
+  // how many blank rows/cards we need to pad with so the widget
+  // stays the same height whether the page has 1 result or 8
+  const emptyRowsCount =
+    !loading && users.length > 0 && users.length < ITEMS_PER_PAGE
+      ? ITEMS_PER_PAGE - users.length
+      : 0;
+
+  // fixed row height so real rows and padding rows match exactly
+  const ROW_HEIGHT = "h-[68px]";
+
   return (
     <div>
       {/* Search + Filter */}
@@ -10,593 +120,275 @@ const Table = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search by username or email..."
+            value={search}
+            onChange={(e) => {
+              const value = e.target.value;
+              const params = new URLSearchParams(searchParams.toString());
+              if (value) params.set("search", value);
+              else params.delete("search");
+              params.set("page", "1");
+              router.push(`/admin/users?${params.toString()}`, {
+                scroll: false,
+              });
+            }}
+            placeholder="Search by username..."
             className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300"
           />
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
-            <Filter className="w-4 h-4" /> Level{" "}
-            <ChevronDown className="w-3 h-3" />
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
-            Time <ChevronDown className="w-3 h-3" />
-          </button>
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <select
+              onChange={(e) => {
+                const value = e.target.value;
+                const params = new URLSearchParams(searchParams.toString());
+                if (value) params.set("level", value);
+                else params.delete("level");
+                params.set("page", "1");
+                router.push(`/admin/users?${params.toString()}`, {
+                  scroll: false,
+                });
+              }}
+              className="appearance-none pl-9 pr-9 py-2.5 text-sm bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer focus:outline-none"
+            >
+              <option value="">All Levels</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+          </div>
         </div>
       </div>
 
       {/* Users Table */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         {/* Mobile card list */}
-        <div className="block lg:hidden divide-y divide-slate-100">
-          <div className="px-4 py-4 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                S
-              </div>
-              <div className="min-w-0">
-                <div className="font-semibold text-slate-800 text-sm truncate">
-                  sara_fit
+        {!isEmpty && (
+          <div className="block lg:hidden divide-y divide-slate-100">
+            {users.map((user) => (
+              <div
+                key={user.id}
+                className="px-4 py-4 flex items-center justify-between gap-3"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-indigo-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                    {user.profilePic ? (
+                      <img
+                        src={user.profilePic}
+                        alt={user.name ?? "Profile"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                        <UserIcon className="w-5 h-5 text-slate-500" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-semibold text-slate-800 text-sm truncate">
+                      {user.name}
+                    </div>
+                    <div className="text-xs text-slate-400 truncate">
+                      {user.email}
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                      <span
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${levelStyles[user.currentLevel as keyof typeof levelStyles] ?? "bg-slate-50 text-slate-600 border-slate-200"}`}
+                      >
+                        {user.currentLevel}
+                      </span>
+                      <span className="text-xs text-slate-400">
+                        {user.workoutTime}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-xs text-slate-400 truncate">
-                  sara@example.com
-                </div>
-                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">
-                    advanced
-                  </span>
-                  <span className="text-xs text-slate-400">🌅 Morning</span>
+                <div className="text-right shrink-0">
+                  <div className="text-xs font-semibold text-slate-600">
+                    {user._count.challenges} challenges
+                  </div>
+                  <div className="text-xs text-slate-400 mt-0.5">
+                    {user._count.workouts} workouts
+                  </div>
+                  <div className="text-xs text-slate-400 mt-0.5">
+                    {new Date(user.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="text-right shrink-0">
-              <div className="text-xs font-semibold text-slate-600">
-                8 challenges
-              </div>
-              <div className="text-xs text-slate-400 mt-0.5">47 workouts</div>
-              <div className="text-xs text-slate-400 mt-0.5">Mar 1, 2026</div>
-            </div>
+            ))}
           </div>
-
-          <div className="px-4 py-4 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                M
-              </div>
-              <div className="min-w-0">
-                <div className="font-semibold text-slate-800 text-sm truncate">
-                  mo_lifts
-                </div>
-                <div className="text-xs text-slate-400 truncate">
-                  mo@example.com
-                </div>
-                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                    intermediate
-                  </span>
-                  <span className="text-xs text-slate-400">🌆 Evening</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <div className="text-xs font-semibold text-slate-600">
-                5 challenges
-              </div>
-              <div className="text-xs text-slate-400 mt-0.5">31 workouts</div>
-              <div className="text-xs text-slate-400 mt-0.5">Feb 14, 2026</div>
-            </div>
-          </div>
-
-          <div className="px-4 py-4 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                L
-              </div>
-              <div className="min-w-0">
-                <div className="font-semibold text-slate-800 text-sm truncate">
-                  lina_yoga
-                </div>
-                <div className="text-xs text-slate-400 truncate">
-                  lina@example.com
-                </div>
-                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
-                    beginner
-                  </span>
-                  <span className="text-xs text-slate-400">🌅 Morning</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <div className="text-xs font-semibold text-slate-600">
-                3 challenges
-              </div>
-              <div className="text-xs text-slate-400 mt-0.5">18 workouts</div>
-              <div className="text-xs text-slate-400 mt-0.5">Jan 22, 2026</div>
-            </div>
-          </div>
-
-          <div className="px-4 py-4 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                K
-              </div>
-              <div className="min-w-0">
-                <div className="font-semibold text-slate-800 text-sm truncate">
-                  karim_run
-                </div>
-                <div className="text-xs text-slate-400 truncate">
-                  karim@example.com
-                </div>
-                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">
-                    advanced
-                  </span>
-                  <span className="text-xs text-slate-400">☀️ Afternoon</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <div className="text-xs font-semibold text-slate-600">
-                11 challenges
-              </div>
-              <div className="text-xs text-slate-400 mt-0.5">63 workouts</div>
-              <div className="text-xs text-slate-400 mt-0.5">Dec 5, 2025</div>
-            </div>
-          </div>
-
-          <div className="px-4 py-4 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-teal-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                N
-              </div>
-              <div className="min-w-0">
-                <div className="font-semibold text-slate-800 text-sm truncate">
-                  nadia_hiit
-                </div>
-                <div className="text-xs text-slate-400 truncate">
-                  nadia@example.com
-                </div>
-                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                    intermediate
-                  </span>
-                  <span className="text-xs text-slate-400">🌙 Night</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <div className="text-xs font-semibold text-slate-600">
-                6 challenges
-              </div>
-              <div className="text-xs text-slate-400 mt-0.5">29 workouts</div>
-              <div className="text-xs text-slate-400 mt-0.5">Nov 18, 2025</div>
-            </div>
-          </div>
-
-          <div className="px-4 py-4 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                A
-              </div>
-              <div className="min-w-0">
-                <div className="font-semibold text-slate-800 text-sm truncate">
-                  adam_strong
-                </div>
-                <div className="text-xs text-slate-400 truncate">
-                  adam@example.com
-                </div>
-                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
-                    beginner
-                  </span>
-                  <span className="text-xs text-slate-400">🌅 Morning</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <div className="text-xs font-semibold text-slate-600">
-                2 challenges
-              </div>
-              <div className="text-xs text-slate-400 mt-0.5">9 workouts</div>
-              <div className="text-xs text-slate-400 mt-0.5">Mar 10, 2026</div>
-            </div>
-          </div>
-
-          <div className="px-4 py-4 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-sky-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                R
-              </div>
-              <div className="min-w-0">
-                <div className="font-semibold text-slate-800 text-sm truncate">
-                  rania_flex
-                </div>
-                <div className="text-xs text-slate-400 truncate">
-                  rania@example.com
-                </div>
-                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                    intermediate
-                  </span>
-                  <span className="text-xs text-slate-400">🌆 Evening</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <div className="text-xs font-semibold text-slate-600">
-                4 challenges
-              </div>
-              <div className="text-xs text-slate-400 mt-0.5">22 workouts</div>
-              <div className="text-xs text-slate-400 mt-0.5">Mar 15, 2026</div>
-            </div>
-          </div>
-
-          <div className="px-4 py-4 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                Y
-              </div>
-              <div className="min-w-0">
-                <div className="font-semibold text-slate-800 text-sm truncate">
-                  youssef_pb
-                </div>
-                <div className="text-xs text-slate-400 truncate">
-                  youssef@example.com
-                </div>
-                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">
-                    advanced
-                  </span>
-                  <span className="text-xs text-slate-400">☀️ Afternoon</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <div className="text-xs font-semibold text-slate-600">
-                9 challenges
-              </div>
-              <div className="text-xs text-slate-400 mt-0.5">54 workouts</div>
-              <div className="text-xs text-slate-400 mt-0.5">Oct 3, 2025</div>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Desktop table */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-xs uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/60">
-                <th className="text-left px-6 py-3 font-medium">User</th>
-                <th className="text-left px-4 py-3 font-medium">Level</th>
-                <th className="text-left px-4 py-3 font-medium">Goals</th>
-                <th className="text-left px-4 py-3 font-medium">
-                  Workout Time
-                </th>
-                <th className="text-right px-4 py-3 font-medium">Challenges</th>
-                <th className="text-right px-4 py-3 font-medium">Workouts</th>
-                <th className="text-right px-6 py-3 font-medium">Joined</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                      S
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-800">
-                        sara_fit
+        {!isEmpty && (
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-xs uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/60">
+                  <th className="text-left px-6 py-3 font-medium">User</th>
+                  <th className="text-left px-4 py-3 font-medium">Level</th>
+                  <th className="text-left px-4 py-3 font-medium">
+                    Workout Time
+                  </th>
+                  <th className="text-right px-4 py-3 font-medium">
+                    Challenges
+                  </th>
+                  <th className="text-right px-4 py-3 font-medium">Workouts</th>
+                  <th className="text-right px-6 py-3 font-medium">Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr
+                    key={user.id}
+                    className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${ROW_HEIGHT}`}
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full overflow-hidden bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                          {user.profilePic ? (
+                            <img
+                              src={user.profilePic}
+                              alt={user.name ?? "Profile"}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                              <UserIcon className="w-5 h-5 text-slate-500" />
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-slate-800">
+                            {user.name}
+                          </div>
+                          <div className="text-xs text-slate-400">
+                            {user.email}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xs text-slate-400">
-                        sara@example.com
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-rose-100 text-rose-700">
-                    advanced
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">
-                  Lose weight, Tone up
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">🌅 Morning</td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  8
-                </td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  47
-                </td>
-                <td className="px-6 py-4 text-right text-xs text-slate-400">
-                  Mar 1, 2026
-                </td>
-              </tr>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span
+                        className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${levelStyles[user.currentLevel as keyof typeof levelStyles] ?? "bg-slate-50 text-slate-600 border-slate-200"}`}
+                      >
+                        {user.currentLevel}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-xs text-slate-500">
+                      {user.workoutTime}
+                    </td>
+                    <td className="px-4 py-4 text-right font-semibold text-slate-700">
+                      {user._count.challenges}
+                    </td>
+                    <td className="px-4 py-4 text-right font-semibold text-slate-700">
+                      {user._count.workouts}
+                    </td>
+                    <td className="px-6 py-4 text-right text-xs text-slate-400">
+                      {new Date(user.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </td>
+                  </tr>
+                ))}
 
-              <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                      M
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-800">
-                        mo_lifts
-                      </div>
-                      <div className="text-xs text-slate-400">
-                        mo@example.com
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
-                    intermediate
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">
-                  Build muscle, Strength
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">🌆 Evening</td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  5
-                </td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  31
-                </td>
-                <td className="px-6 py-4 text-right text-xs text-slate-400">
-                  Feb 14, 2026
-                </td>
-              </tr>
+                {/* Padding rows so the table keeps a fixed height even with < 8 results */}
+                {Array.from({ length: emptyRowsCount }).map((_, i) => (
+                  <tr
+                    key={`empty-${i}`}
+                    className={`border-b border-slate-50 ${ROW_HEIGHT}`}
+                  >
+                    <td colSpan={6}></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-              <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                      L
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-800">
-                        lina_yoga
-                      </div>
-                      <div className="text-xs text-slate-400">
-                        lina@example.com
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-                    beginner
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">
-                  Flexibility, Mindfulness
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">🌅 Morning</td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  3
-                </td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  18
-                </td>
-                <td className="px-6 py-4 text-right text-xs text-slate-400">
-                  Jan 22, 2026
-                </td>
-              </tr>
-
-              <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-rose-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                      K
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-800">
-                        karim_run
-                      </div>
-                      <div className="text-xs text-slate-400">
-                        karim@example.com
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-rose-100 text-rose-700">
-                    advanced
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">
-                  Run 5K, Endurance
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">
-                  ☀️ Afternoon
-                </td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  11
-                </td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  63
-                </td>
-                <td className="px-6 py-4 text-right text-xs text-slate-400">
-                  Dec 5, 2025
-                </td>
-              </tr>
-
-              <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-teal-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                      N
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-800">
-                        nadia_hiit
-                      </div>
-                      <div className="text-xs text-slate-400">
-                        nadia@example.com
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
-                    intermediate
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">
-                  Fat burn, Stamina
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">🌙 Night</td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  6
-                </td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  29
-                </td>
-                <td className="px-6 py-4 text-right text-xs text-slate-400">
-                  Nov 18, 2025
-                </td>
-              </tr>
-
-              <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                      A
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-800">
-                        adam_strong
-                      </div>
-                      <div className="text-xs text-slate-400">
-                        adam@example.com
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-                    beginner
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">
-                  Get fit, Stay active
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">🌅 Morning</td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  2
-                </td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  9
-                </td>
-                <td className="px-6 py-4 text-right text-xs text-slate-400">
-                  Mar 10, 2026
-                </td>
-              </tr>
-
-              <tr className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-sky-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                      R
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-800">
-                        rania_flex
-                      </div>
-                      <div className="text-xs text-slate-400">
-                        rania@example.com
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
-                    intermediate
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">
-                  Stretch daily, Core
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">🌆 Evening</td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  4
-                </td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  22
-                </td>
-                <td className="px-6 py-4 text-right text-xs text-slate-400">
-                  Mar 15, 2026
-                </td>
-              </tr>
-
-              <tr className="hover:bg-slate-50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                      Y
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-800">
-                        youssef_pb
-                      </div>
-                      <div className="text-xs text-slate-400">
-                        youssef@example.com
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-rose-100 text-rose-700">
-                    advanced
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">
-                  Personal best, Power
-                </td>
-                <td className="px-4 py-4 text-xs text-slate-500">
-                  ☀️ Afternoon
-                </td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  9
-                </td>
-                <td className="px-4 py-4 text-right font-semibold text-slate-700">
-                  54
-                </td>
-                <td className="px-6 py-4 text-right text-xs text-slate-400">
-                  Oct 3, 2025
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        {/* Empty state */}
+        {isEmpty && (
+          <div className="flex flex-col items-center justify-center text-center px-6 py-20">
+            <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4">
+              {hasActiveFilters ? (
+                <Search className="w-7 h-7 text-indigo-400" />
+              ) : (
+                <Users className="w-7 h-7 text-indigo-400" />
+              )}
+            </div>
+            <h3 className="text-sm font-semibold text-slate-700">
+              {hasActiveFilters ? "No matching users" : "No users yet"}
+            </h3>
+            <p className="text-xs text-slate-400 mt-1.5 max-w-xs">
+              {hasActiveFilters
+                ? "Try adjusting your search or filter to find what you're looking for."
+                : "Once people sign up, they'll show up here."}
+            </p>
+            {hasActiveFilters && (
+              <button
+                onClick={clearAllFilters}
+                className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+                Clear filters
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Pagination */}
-        <div className="px-4 lg:px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-          <span className="text-xs text-slate-400">
-            Showing 8 of 1,284 users
-          </span>
-          <div className="flex items-center gap-1">
-            <button className="px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-500 hover:bg-slate-50 transition-colors">
-              Prev
-            </button>
-            <button className="px-3 py-1.5 text-xs bg-indigo-600 border border-indigo-600 rounded-lg text-white font-semibold">
-              1
-            </button>
-            <button className="px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-500 hover:bg-slate-50 transition-colors">
-              2
-            </button>
-            <button className="px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-500 hover:bg-slate-50 transition-colors">
-              3
-            </button>
-            <button className="px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-500 hover:bg-slate-50 transition-colors">
-              Next
-            </button>
+        {paginationInfo && paginationInfo.totalPages > 1 && (
+          <div className="px-4 lg:px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+            <span className="text-xs text-slate-400">
+              Showing {paginationInfo.offset + 1} to{" "}
+              {paginationInfo.offset + users.length} of{" "}
+              {paginationInfo.totalItems} users
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={!paginationInfo.hasPrevPage}
+                className={`px-3 py-1.5 text-xs bg-white border rounded-lg transition-colors
+                            ${!paginationInfo.hasPrevPage ? "text-slate-300 border-slate-200 cursor-not-allowed" : "text-slate-600 border-slate-300 hover:bg-slate-50"}`}
+              >
+                Prev
+              </button>
+              {generatePages().map((pageNum, index) => (
+                <React.Fragment key={index}>
+                  {pageNum === "..." ? (
+                    <span className="px-2 py-1 text-xs text-slate-400">
+                      •••
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => goToPage(pageNum as number)}
+                      className={`px-3 py-1.5 text-xs border rounded-lg transition-colors
+                                              ${pageNum === currentPage ? "bg-indigo-600 border border-indigo-600 text-white font-semibold" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"}`}
+                    >
+                      {pageNum}
+                    </button>
+                  )}
+                </React.Fragment>
+              ))}
+
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={!paginationInfo.hasNextPage}
+                className={`px-3 py-1.5 text-xs bg-white border rounded-lg transition-colors
+                            ${!paginationInfo.hasNextPage ? "text-slate-300 border-slate-200 cursor-not-allowed" : "text-slate-600 border-slate-300 hover:bg-slate-100"}`}
+              >
+                Next
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
