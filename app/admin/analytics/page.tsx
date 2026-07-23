@@ -28,6 +28,7 @@ interface AnalyticsData {
 
 export default function AnalyticsDashboard() {
   const [data, setData] = useState<AnalyticsData | null>(null);
+  const [activeNow, setActiveNow] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
@@ -46,15 +47,26 @@ export default function AnalyticsDashboard() {
         });
     };
 
-    // Initial fetch on mount
     fetchAnalytics();
-
-    // Auto-poll every 5 seconds for immediate realtime updates
-    const interval = setInterval(fetchAnalytics, 5000);
+    const interval = setInterval(fetchAnalytics, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  // Loading Guard Clause
+  useEffect(() => {
+    const fetchRealtime = () => {
+      fetch('/api/admin/analytics/realtime')
+        .then((res) => res.json())
+        .then((data: { activeNow?: number }) => {
+          setActiveNow(data.activeNow ?? 0);
+        })
+        .catch((err) => console.error('Failed to load realtime data:', err));
+    };
+
+    fetchRealtime();
+    const interval = setInterval(fetchRealtime, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (loading) {
     return (
       <div className="flex min-h-screen bg-slate-50">
@@ -62,7 +74,7 @@ export default function AnalyticsDashboard() {
         <div className="flex-1 text-slate-900 pb-16 flex items-center justify-center">
           <div className="flex items-center gap-3 text-slate-500 font-medium">
             <span className="w-3 h-3 rounded-full bg-indigo-500 animate-ping" />
-            Connecting to live analytics feed...
+            Loading analytics...
           </div>
         </div>
       </div>
@@ -71,14 +83,11 @@ export default function AnalyticsDashboard() {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
       <div className="flex-1 text-slate-900 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-          {/* Header */}
           <div className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
@@ -87,37 +96,30 @@ export default function AnalyticsDashboard() {
               <p className="mt-2 text-slate-500">Overview of site visitors</p>
             </div>
 
-            {/* Live Indicator Badge */}
             <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200 self-start sm:self-auto shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Live Feed Active
+              {activeNow} active right now
             </div>
           </div>
 
-          {/* Stat Cards */}
-          <Cards data={data?.cards} />
+          <Cards data={data?.cards} activeNow={activeNow} />
 
-          {/* Area Chart - Daily Visitors */}
-          <Graph data={data?.graph} /> 
+          <Graph data={data?.graph} />
 
-          {/* Pie Charts - Traffic Sources + Devices */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <Traffic data={data?.traffic} />
             <Devices data={data?.devices} />
           </div>
 
-          {/* Countries + Pages */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <Countries data={data?.countries} />
             <TopPages data={data?.topPages} />
           </div>
 
-          {/* Browsers Bar Chart */}
           <Browser data={data?.browsers} />
 
-          {/* Footer Timestamp */}
           <div className="mt-12 text-center text-xs text-slate-400">
-            Data based on live visitor tracking • Last updated at {lastUpdated || 'Just now'}
+            28-day snapshot last refreshed at {lastUpdated || 'just now'} • &quot;Active right now&quot; updates every 5s from GA4 Realtime
           </div>
 
         </div>

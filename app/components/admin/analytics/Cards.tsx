@@ -1,5 +1,5 @@
 import React from "react";
-import { MousePointerClick, Clock, Users, ArrowUpRight } from "lucide-react";
+import { MousePointerClick, Clock, Users, ArrowUpRight, Radio } from "lucide-react";
 
 interface CardsProps {
   data?: {
@@ -8,17 +8,31 @@ interface CardsProps {
     avgSession: string;
     bounceRate: string;
   };
+  activeNow?: number;
 }
 
-const Cards = ({ data }: CardsProps) => {
+const Cards = ({ data, activeNow }: CardsProps) => {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div className="bg-white border border-emerald-200 rounded-2xl p-6 shadow-sm">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-emerald-100">
+          <Radio className="w-5 h-5 text-emerald-600" />
+        </div>
+        <div className="text-xs uppercase tracking-widest text-slate-400 font-medium flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          Active Right Now
+        </div>
+        <div className="text-3xl font-extrabold mt-1 mb-2 text-emerald-600">
+          {activeNow ?? 0}
+        </div>
+      </div>
+
       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-indigo-100">
           <Users className="w-5 h-5 text-indigo-500" />
         </div>
         <div className="text-xs uppercase tracking-widest text-slate-400 font-medium">
-          Total Visitors
+          Total Visitors <span className="normal-case text-slate-300">(28d)</span>
         </div>
         <div className="text-3xl font-extrabold mt-1 mb-2 text-indigo-500">
           {data?.totalVisitors ?? "0"}

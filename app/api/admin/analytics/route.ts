@@ -30,8 +30,7 @@ export async function GET() {
   const dateRanges = [{ startDate: '28daysAgo', endDate: 'today' }];
 
   try {
-    const [batch1Response, batch2Response, realtimeResponse] = await Promise.all([
-      // Batch 1: Historical Data (Max 5 queries)
+    const [batch1Response, batch2Response] = await Promise.all([
       analyticsDataClient.batchRunReports({
         property,
         requests: [
@@ -74,7 +73,6 @@ export async function GET() {
           },
         ],
       }),
-      // Batch 2: Additional Historical Data
       analyticsDataClient.batchRunReports({
         property,
         requests: [
@@ -94,13 +92,6 @@ export async function GET() {
           },
         ],
       }),
-      // Realtime Check: Active Users Right Now
-      analyticsDataClient
-        .runRealtimeReport({
-          property,
-          metrics: [{ name: 'activeUsers' }],
-        })
-        .catch(() => null),
     ]);
 
     const reports = [
@@ -108,34 +99,25 @@ export async function GET() {
       ...(batch2Response[0].reports || []),
     ];
 
-    // --- Cards Data ---
     const cardValues = reports[0]?.rows?.[0]?.metricValues || [];
     const totalVisitors = parseInt(cardValues[0]?.value || '0', 10);
     const uniqueSessions = parseInt(cardValues[1]?.value || '0', 10);
     const avgDurationSec = parseFloat(cardValues[2]?.value || '0');
     const bounceRateVal = parseFloat(cardValues[3]?.value || '0');
 
-    const activeNow = parseInt(
-      realtimeResponse?.[0]?.rows?.[0]?.metricValues?.[0]?.value || '0',
-      10
-    );
-
     const cardsData = {
       totalVisitors: totalVisitors.toLocaleString(),
       uniqueSessions: uniqueSessions.toLocaleString(),
       avgSession: formatDuration(avgDurationSec),
       bounceRate: `${(bounceRateVal * 100).toFixed(1)}%`,
-      activeNow,
     };
 
-    // --- Daily Visitors Graph ---
     const graphData =
       reports[1]?.rows?.map((row) => ({
         day: formatDateLabel(row.dimensionValues?.[0]?.value || ''),
         visitors: parseInt(row.metricValues?.[0]?.value || '0', 10),
       })) || [];
 
-    // --- Browsers ---
     const browserRows = reports[2]?.rows || [];
     const browserTotal = browserRows.reduce(
       (acc, r) => acc + parseInt(r.metricValues?.[0]?.value || '0', 10),
@@ -152,7 +134,6 @@ export async function GET() {
       };
     });
 
-    // --- Devices ---
     const deviceRows = reports[3]?.rows || [];
     const deviceTotal = deviceRows.reduce(
       (acc, r) => acc + parseInt(r.metricValues?.[0]?.value || '0', 10),
@@ -169,7 +150,6 @@ export async function GET() {
       };
     });
 
-    // --- Top Countries ---
     const countryRows = reports[4]?.rows || [];
     const countryTotal = countryRows.reduce(
       (acc, r) => acc + parseInt(r.metricValues?.[0]?.value || '0', 10),
@@ -186,7 +166,6 @@ export async function GET() {
       };
     });
 
-    // --- Top Pages ---
     const pageRows = reports[5]?.rows || [];
     const pageTotal = pageRows.reduce(
       (acc, r) => acc + parseInt(r.metricValues?.[0]?.value || '0', 10),
@@ -203,7 +182,6 @@ export async function GET() {
       };
     });
 
-    // --- Traffic Sources ---
     const trafficRows = reports[6]?.rows || [];
     const trafficTotal = trafficRows.reduce(
       (acc, r) => acc + parseInt(r.metricValues?.[0]?.value || '0', 10),
