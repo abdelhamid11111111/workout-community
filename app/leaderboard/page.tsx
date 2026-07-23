@@ -112,29 +112,29 @@ const Leaderboard = () => {
         </div>
 
         {/* Podium – Top 3 */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-10 max-w-5xl mx-auto mb-16 items-end">
+        <div className="grid grid-cols-3 gap-3 sm:gap-6 md:gap-10 max-w-5xl mx-auto mb-16 items-end">
           {/* 2nd */}
           {second && (
             <div className="relative flex flex-col items-center order-2 sm:order-1">
-              <div className="absolute -top-9 left-1/2 -translate-x-1/2 z-20">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center text-white text-4xl font-black shadow-lg border-4 border-white">
+              <div className="absolute -top-5 sm:-top-9 left-1/2 -translate-x-1/2 z-20">
+                <div className="w-9 h-9 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center text-white text-lg sm:text-4xl font-black shadow-lg border-2 sm:border-4 border-white">
                   2
                 </div>
               </div>
 
-              <div className="glass-card w-full max-w-xs p-6 md:p-8 text-center rounded-2xl bg-gradient-to-br from-gray-400 to-gray-600 text-white shadow-xl border border-gray-300/40 hover:shadow-2xl transition-all duration-300">
-                <Medal className="w-12 h-12 text-gray-200 mx-auto mb-5 opacity-90" />
+              <div className="glass-card w-full p-3 sm:p-6 md:p-8 text-center rounded-xl sm:rounded-2xl bg-gradient-to-br from-gray-400 to-gray-600 text-white shadow-xl border border-gray-300/40 hover:shadow-2xl transition-all duration-300">
+                <Medal className="w-6 h-6 sm:w-12 sm:h-12 text-gray-200 mx-auto mb-2 sm:mb-5 opacity-90" />
                 <Avatar
                   user={second}
-                  className="w-28 h-28 rounded-full mx-auto mb-5 border-4 border-white/60 shadow-md"
+                  className="w-12 h-12 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full mx-auto mb-2 sm:mb-5 border-2 sm:border-4 border-white/60 shadow-md"
                 />
-                <h3 className="text-xl md:text-2xl font-bold">
+                <h3 className="text-xs sm:text-xl md:text-2xl font-bold truncate px-1">
                   {second.name}
                 </h3>
-                <p className="text-4xl font-extrabold mt-3">
+                <p className="text-base sm:text-3xl md:text-4xl font-extrabold mt-1 sm:mt-3">
                   {getPoints(second).toLocaleString()}
                 </p>
-                <p className="text-white/90 mt-1">points</p>
+                <p className="text-white/90 text-[10px] sm:text-base mt-0.5 sm:mt-1">points</p>
               </div>
             </div>
           )}
@@ -142,25 +142,25 @@ const Leaderboard = () => {
           {/* 1st – bigger card */}
           {first && (
             <div className="relative flex flex-col items-center order-1 z-10">
-              <div className="absolute -top-11 left-1/2 -translate-x-1/2 z-20">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center text-white text-5xl font-black shadow-2xl border-4 border-white">
+              <div className="absolute -top-6 sm:-top-11 left-1/2 -translate-x-1/2 z-20">
+                <div className="w-11 h-11 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center text-white text-xl sm:text-5xl font-black shadow-2xl border-2 sm:border-4 border-white">
                   1
                 </div>
               </div>
 
-              <div className="glass-card w-full max-w-xs p-8 md:p-10 text-center rounded-3xl bg-gradient-to-br from-yellow-500 to-amber-600 text-white shadow-2xl border-2 border-yellow-300/50 hover:shadow-gold transition-all duration-300">
-                <Crown className="w-14 h-14 text-yellow-200 mx-auto mb-6 drop-shadow-md" />
+              <div className="glass-card w-full p-4 sm:p-8 md:p-10 text-center rounded-xl sm:rounded-3xl bg-gradient-to-br from-yellow-500 to-amber-600 text-white shadow-2xl border-2 border-yellow-300/50 hover:shadow-gold transition-all duration-300">
+                <Crown className="w-7 h-7 sm:w-14 sm:h-14 text-yellow-200 mx-auto mb-2 sm:mb-6 drop-shadow-md" />
                 <Avatar
                   user={first}
-                  className="w-36 h-36 rounded-full mx-auto mb-6 border-4 border-white/80 shadow-xl"
+                  className="w-16 h-16 sm:w-28 sm:h-28 md:w-36 md:h-36 rounded-full mx-auto mb-2 sm:mb-6 border-2 sm:border-4 border-white/80 shadow-xl"
                 />
-                <h3 className="text-2xl md:text-3xl font-extrabold">
+                <h3 className="text-sm sm:text-2xl md:text-3xl font-extrabold truncate px-1">
                   {first.name}
                 </h3>
-                <p className="text-5xl font-black mt-3">
+                <p className="text-lg sm:text-4xl md:text-5xl font-black mt-1 sm:mt-3">
                   {getPoints(first).toLocaleString()}
                 </p>
-                <p className="text-white/90 mt-1">points</p>
+                <p className="text-white/90 text-[10px] sm:text-base mt-0.5 sm:mt-1">points</p>
               </div>
             </div>
           )}
@@ -168,25 +168,25 @@ const Leaderboard = () => {
           {/* 3rd */}
           {third && (
             <div className="relative flex flex-col items-center order-3">
-              <div className="absolute -top-9 left-1/2 -translate-x-1/2 z-20">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-red-600 flex items-center justify-center text-white text-4xl font-black shadow-lg border-4 border-white">
+              <div className="absolute -top-5 sm:-top-9 left-1/2 -translate-x-1/2 z-20">
+                <div className="w-9 h-9 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-orange-400 to-red-600 flex items-center justify-center text-white text-lg sm:text-4xl font-black shadow-lg border-2 sm:border-4 border-white">
                   3
                 </div>
               </div>
 
-              <div className="glass-card w-full max-w-xs p-6 md:p-8 text-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-xl border border-gray-300/40 hover:shadow-2xl transition-all duration-300">
-                <Award className="w-12 h-12 text-orange-200 mx-auto mb-5 opacity-90" />
+              <div className="glass-card w-full p-3 sm:p-6 md:p-8 text-center rounded-xl sm:rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-xl border border-gray-300/40 hover:shadow-2xl transition-all duration-300">
+                <Award className="w-6 h-6 sm:w-12 sm:h-12 text-orange-200 mx-auto mb-2 sm:mb-5 opacity-90" />
                 <Avatar
                   user={third}
-                  className="w-28 h-28 rounded-full mx-auto mb-5 border-4 border-white/60 shadow-md"
+                  className="w-12 h-12 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full mx-auto mb-2 sm:mb-5 border-2 sm:border-4 border-white/60 shadow-md"
                 />
-                <h3 className="text-xl md:text-2xl font-bold">
+                <h3 className="text-xs sm:text-xl md:text-2xl font-bold truncate px-1">
                   {third.name}
                 </h3>
-                <p className="text-4xl font-extrabold mt-3">
+                <p className="text-base sm:text-3xl md:text-4xl font-extrabold mt-1 sm:mt-3">
                   {getPoints(third).toLocaleString()}
                 </p>
-                <p className="text-white/90 mt-1">points</p>
+                <p className="text-white/90 text-[10px] sm:text-base mt-0.5 sm:mt-1">points</p>
               </div>
             </div>
           )}
@@ -194,7 +194,8 @@ const Leaderboard = () => {
 
         {/* Leaderboard Table */}
         <div className="glass-card overflow-hidden rounded-2xl border border-gray-200/60 shadow-xl bg-white/70 backdrop-blur-md">
-          <table className="w-full text-left">
+  <div className="overflow-x-auto">
+    <table className="w-full text-left min-w-[640px]">
             <thead className="bg-gradient-to-r from-gray-800 to-gray-900 text-white">
               <tr>
                 <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wider">
@@ -272,6 +273,7 @@ const Leaderboard = () => {
           </table>
         </div>
 
+      </div>
       </div>
     </div>
   );

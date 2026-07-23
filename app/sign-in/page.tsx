@@ -59,7 +59,7 @@ export default function SignIn() {
             Back
           </button>
 
-          <div className="flex items-center gap-3 mb-8 lg:hidden">
+          {/* <div className="flex items-center gap-3 mb-8 lg:hidden">
             <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
               <span className="text-white font-extrabold text-xs tracking-tight">
                 FIT
@@ -68,7 +68,7 @@ export default function SignIn() {
             <span className="text-slate-900 font-extrabold text-base tracking-tight">
               FitApp
             </span>
-          </div>
+          </div> */}
 
           <div className="mb-8">
             <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900">

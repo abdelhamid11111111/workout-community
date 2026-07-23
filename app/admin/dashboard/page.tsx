@@ -5,17 +5,12 @@ import Graph from "@/app/components/admin/dashboard/Graph";
 import Intensity from "@/app/components/admin/dashboard/Intensity";
 import PostWorkout from "@/app/components/admin/dashboard/Post-Workout";
 import TopChall from "@/app/components/admin/dashboard/TopChall";
-import TopUsrs from "@/app/components/admin/dashboard/TopUsrs";
 import UsrLevel from "@/app/components/admin/dashboard/UsrLevel";
 import WorkoutTime from "@/app/components/admin/dashboard/WorkoutTime";
 import Sidebar from "@/app/components/admin/SideBar";
 import { getUserJoinsThisWeek } from "@/lib/queries/getUserJoins";
 
-
-
 export const dynamic = "force-dynamic";
-
-
 
 export default async function Dashboard() {
   const joinsData = await getUserJoinsThisWeek();

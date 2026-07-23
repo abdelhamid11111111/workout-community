@@ -8,6 +8,7 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
     client_email: process.env.GA_CLIENT_EMAIL,
     private_key: process.env.GA_PRIVATE_KEY?.replace(/\\n/g, '\n'),
   },
+  fallback: true,
 });
 
 function formatDuration(seconds: number): string {

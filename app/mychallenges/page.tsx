@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import CardsChallenges from "../components/ui/CardsChallenges";
 import ChallengeCard from "../components/ui/ChallengeCard";
 import { userChallenge } from "../types/types";
-import { Trophy } from "lucide-react";
+import { ArrowLeft, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import ChallengeCardSkeleton from "../components/ui/ChallengeCardSkeleton";
@@ -28,21 +28,25 @@ const MyChallenges = () => {
     fetchChallenges();
   }, []);
 
-
-
   const filtered = userChallenge.filter((uc) =>
     tab === "completed" ? uc.isCompleted : uc.isActive,
   );
 
-  const totalActive = userChallenge.filter((uc) => uc.isActive) || []
-  const countActive = totalActive.length
+  const totalActive = userChallenge.filter((uc) => uc.isActive) || [];
+  const countActive = totalActive.length;
 
-  const totalCompleted = userChallenge.filter((uc) => uc.isCompleted) || []
-  const countCompleted = totalCompleted.length
+  const totalCompleted = userChallenge.filter((uc) => uc.isCompleted) || [];
+  const countCompleted = totalCompleted.length;
 
   return (
     <div className="min-h-screen bg-slate-50 antialiased">
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-10 lg:py-16">
+        <Link href="/">
+          <button className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 mb-6 transition-colors font-medium">
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
+        </Link>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
           My Challenges
         </h1>
@@ -50,7 +54,10 @@ const MyChallenges = () => {
           Track your progress and stay motivated
         </p>
 
-        <CardsChallenges countActive={countActive} countCompleted={countCompleted}/>
+        <CardsChallenges
+          countActive={countActive}
+          countCompleted={countCompleted}
+        />
 
         <div className="flex gap-3 mb-6">
           <button

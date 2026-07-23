@@ -2,11 +2,19 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Trophy, Calendar, TrendingUp, Upload } from "lucide-react";
+import {
+  Trophy,
+  Calendar,
+  TrendingUp,
+  Upload,
+  Eye,
+  LogOut,
+} from "lucide-react";
 import Link from "next/link";
 import { userChallenge } from "@/app/types/types";
 import ProgressBar from "./ProgressBar";
 import { LiveTimeAgo } from "./LiveTimeAgo";
+import { levelStyles, categoryStyles } from "@/app/colors/data";
 import { daysRemaining } from "@/lib/secondTimeAgo";
 
 type ChallengeCardProps = {
@@ -88,16 +96,21 @@ const ChallengeCard = ({ userChallenge, onDelete }: ChallengeCardProps) => {
               {userChallenge.challenge.title}
             </h3>
             <div className="flex flex-wrap gap-2.5">
-              <span className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-100">
+              <span
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium border ${
+                  categoryStyles[
+                    userChallenge.challenge
+                      .category as keyof typeof categoryStyles
+                  ] ?? "bg-slate-50 text-slate-600 border-slate-200"
+                }`}
+              >
                 {userChallenge.challenge.category}
               </span>
               <span
                 className={`px-3.5 py-1.5 rounded-full text-xs font-medium border ${
-                  userChallenge.challenge.level === "Beginner"
-                    ? "bg-green-50 text-green-800 border-green-100"
-                    : userChallenge.challenge.level === "Intermediate"
-                      ? "bg-amber-50 text-amber-800 border-amber-100"
-                      : "bg-red-50 text-red-800 border-red-100"
+                  levelStyles[
+                    userChallenge.challenge.level as keyof typeof levelStyles
+                  ] ?? "bg-slate-50 text-slate-600 border-slate-200"
                 }`}
               >
                 {userChallenge.challenge.level}
@@ -161,11 +174,11 @@ const ChallengeCard = ({ userChallenge, onDelete }: ChallengeCardProps) => {
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
             {userChallenge.isCompleted ? (
               <button
                 disabled
-                className="inline-flex cursor-not-allowed items-center gap-2 px-6 py-3 bg-slate-100 text-slate-400 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base"
+                className="inline-flex cursor-not-allowed items-center justify-center gap-2 px-6 py-3 bg-slate-100 text-slate-400 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base"
               >
                 <Upload className="w-4 h-4" />
                 Submit Workout
@@ -173,26 +186,33 @@ const ChallengeCard = ({ userChallenge, onDelete }: ChallengeCardProps) => {
             ) : (
               <Link
                 href={`/mychallenges/workout/${userChallenge.challenge.id}`}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base"
               >
                 <Upload className="w-4 h-4" />
                 Submit Workout
               </Link>
             )}
 
-            <Link
-              href={`/challenge/${userChallenge.challenge.title}`}
-              className="inline-flex items-center px-6 py-3 bg-white text-emerald-700 border-2 border-emerald-200 hover:border-emerald-400 rounded-xl font-semibold transition-all duration-200 text-sm sm:text-base"
-            >
-              View Details
-            </Link>
+            {/* View Details + Leave Challenge: paired 2-col grid on mobile,
+               display:contents at sm+ so desktop keeps its original
+               flex-wrap row (including ml-auto push-right) untouched */}
+            <div className="grid grid-cols-2 gap-3 sm:contents">
+              <Link
+                href={`/challenge/${userChallenge.challenge.title}`}
+                className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-white text-emerald-700 border-2 border-emerald-200 hover:border-emerald-400 rounded-xl font-semibold transition-all duration-200 text-sm sm:text-base"
+              >
+                <Eye className="w-4 h-4" />
+                View Details
+              </Link>
 
-            <button
-              onClick={() => handleDelete(userChallenge.challenge.id)}
-              className="inline-flex items-center px-6 py-3 bg-white text-red-500 border-2 border-red-100 hover:bg-red-50 hover:border-red-300 hover:text-red-600 rounded-xl font-semibold transition-all duration-200 text-sm sm:text-base ml-auto"
-            >
-              Leave Challenge
-            </button>
+              <button
+                onClick={() => handleDelete(userChallenge.challenge.id)}
+                className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-white text-red-500 border-2 border-red-100 hover:bg-red-50 hover:border-red-300 hover:text-red-600 rounded-xl font-semibold transition-all duration-200 text-sm sm:text-base sm:ml-auto"
+              >
+                <LogOut className="w-4 h-4" />
+                Leave Challenge
+              </button>
+            </div>
           </div>
         </div>
       </div>

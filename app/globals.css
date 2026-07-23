@@ -5,6 +5,18 @@
   /* --foreground: #171717; */
 }
 
+/* .recharts-wrapper svg:focus,
+.recharts-surface:focus {
+  outline: none;
+} */
+
+.recharts-wrapper:focus,
+.recharts-wrapper *:focus,
+.recharts-surface:focus {
+  outline: none !important;
+}
+
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
