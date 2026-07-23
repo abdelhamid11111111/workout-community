@@ -85,7 +85,7 @@ export default function AnalyticsDashboard() {
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar />
 
-      <div className="flex-1 text-slate-900 pb-16">
+      <div className="flex-1 pb-16 min-w-0 pt-14 lg:pt-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
           <div className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
