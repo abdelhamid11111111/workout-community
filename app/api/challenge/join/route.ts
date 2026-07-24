@@ -24,11 +24,12 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(userChallenge, { status: 201 });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
-        return NextResponse.json({ error: "Already joined" }, { status: 409 });
-      }
+    const err = error as { code?: string };
+
+    if (err.code === "P2002") {
+      return NextResponse.json({ error: "Already joined" }, { status: 409 });
     }
+
     console.error({ error: "server error" });
     return NextResponse.json({ error: "server error" }, { status: 500 });
   }

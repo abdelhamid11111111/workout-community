@@ -5,6 +5,8 @@ import { NextRequest } from 'next/server'
 import { GET, PUT, DELETE } from './route'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import uploader from "@/lib/cloudinary";
+import type { UploadApiResponse } from "cloudinary";
 
 jest.mock('@/lib/auth', () => ({ auth: { api: { getSession: jest.fn() } } }))
 jest.mock('@/lib/prisma', () => ({
@@ -16,7 +18,7 @@ jest.mock('@/lib/cloudinary', () => ({ uploader: { upload: jest.fn() } }))
 
 const authMock = auth as any
 const prismaMock = prisma as any
-const cloudinaryMock = require('@/lib/cloudinary') as any
+const cloudinaryMock = jest.mocked(uploader);
 describe('/api/admin/challenges/[id] route', () => {
   beforeEach(() => jest.clearAllMocks())
 

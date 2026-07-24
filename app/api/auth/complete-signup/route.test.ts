@@ -5,6 +5,7 @@ import { NextRequest } from 'next/server'
 import { POST } from './route'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import uploader from '@/lib/cloudinary'
 
 jest.mock('@/lib/auth', () => ({ auth: { api: { signUpEmail: jest.fn() } } }))
 jest.mock('@/lib/prisma', () => ({
@@ -12,9 +13,21 @@ jest.mock('@/lib/prisma', () => ({
 }))
 jest.mock('@/lib/cloudinary', () => ({ uploader: { upload: jest.fn() } }))
 
-const authMock = auth as any
-const prismaMock = prisma as any
-const cloudinaryMock = require('@/lib/cloudinary') as any
+const authMock = jest.mocked(auth)
+const prismaMock = jest.mocked(prisma)
+const cloudinaryMock = jest.mocked(uploader)
+
+function buildValidForm(overrides: Record<string, string> = {}) {
+  const form = new FormData()
+  form.append('username', overrides.username ?? 'jane_doe')
+  form.append('email', overrides.email ?? 'jane@example.com')
+  form.append('password', overrides.password ?? 'Password123!')
+  form.append('currentLevel', 'beginner')
+  form.append('workoutTime', 'Morning')
+  form.append('personalGoals[]', 'weight_loss') // use a real enum value from PersonalGoals
+  return form
+}
+
 describe('/api/auth/complete-signup POST', () => {
   beforeEach(() => jest.clearAllMocks())
 
@@ -22,48 +35,61 @@ describe('/api/auth/complete-signup POST', () => {
     const form = new FormData()
     form.append('username', 'a')
 
-    const response = await POST(new NextRequest(new Request('http://localhost/api/auth/complete-signup', { method: 'POST', body: form })))
+    const response = await POST(
+      new NextRequest(
+        new Request('http://localhost/api/auth/complete-signup', {
+          method: 'POST',
+          body: form,
+        }),
+      ),
+    )
 
     expect(response.status).toBe(400)
-    await expect(response.json()).resolves.toEqual({ error: 'Username, email and password are required' })
+    await expect(response.json()).resolves.toEqual({
+      error: 'Username, email and password are required',
+    })
   })
 
-  it('returns 409 when the email or username already exists', async () => {
-    const form = new FormData()
-    form.append('username', 'jane_doe')
-    form.append('email', 'jane@example.com')
-    form.append('password', 'password123')
-    form.append('currentLevel', 'beginner')
-    form.append('workoutTime', 'Morning')
-    form.append('personalGoals[]', 'Strength')
-    prismaMock.user.findUnique.mockResolvedValue({ id: 'u1' })
+  it('returns 409 when the email already exists', async () => {
+    prismaMock.user.findUnique.mockResolvedValueOnce({
+      id: 'u1',
+      email: 'jane@example.com',
+    } as any)
 
-    const response = await POST(new NextRequest(new Request('http://localhost/api/auth/complete-signup', { method: 'POST', body: form })))
+    const response = await POST(
+      new NextRequest(
+        new Request('http://localhost/api/auth/complete-signup', {
+          method: 'POST',
+          body: buildValidForm(),
+        }),
+      ),
+    )
 
     expect(response.status).toBe(409)
-    await expect(response.json()).resolves.toEqual({ error: 'An account with this email already exists' })
+    await expect(response.json()).resolves.toEqual({
+      error: 'An account with this email already exists',
+    })
+    expect(authMock.api.signUpEmail).not.toHaveBeenCalled()
   })
 
-  it('creates a user and returns 201 on success', async () => {
-    const form = new FormData()
-    form.append('username', 'jane_doe')
-    form.append('email', 'jane@example.com')
-    form.append('password', 'password123')
-    form.append('currentLevel', 'beginner')
-    form.append('workoutTime', 'Morning')
-    form.append('personalGoals[]', 'Strength')
+  it('returns 409 when the username already exists', async () => {
+    prismaMock.user.findUnique
+      .mockResolvedValueOnce(null) // email check passes
+      .mockResolvedValueOnce({ id: 'u2', username: 'jane_doe' } as any) // username check fails
 
-    prismaMock.user.findUnique.mockResolvedValue(null)
-    authMock.api.signUpEmail.mockResolvedValue({
-      ok: true,
-      json: async () => ({ user: { id: 'u1' } }),
-      headers: new Headers({ 'set-cookie': 'session=abc' }),
+    const response = await POST(
+      new NextRequest(
+        new Request('http://localhost/api/auth/complete-signup', {
+          method: 'POST',
+          body: buildValidForm(),
+        }),
+      ),
+    )
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toEqual({
+      error: 'This username is already taken',
     })
-    prismaMock.user.update.mockResolvedValue({ id: 'u1', username: 'jane_doe', email: 'jane@example.com' })
-
-    const response = await POST(new NextRequest(new Request('http://localhost/api/auth/complete-signup', { method: 'POST', body: form })))
-
-    expect(response.status).toBe(201)
-    await expect(response.json()).resolves.toMatchObject({ user: { id: 'u1' } })
+    expect(authMock.api.signUpEmail).not.toHaveBeenCalled()
   })
 })

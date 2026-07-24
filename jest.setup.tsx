@@ -3,19 +3,33 @@ import React from 'react'
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: React.ComponentProps<'img'>) => {
     const { alt = '', ...rest } = props
+    // eslint-disable-next-line @next/next/no-img-element
     return <img alt={alt} {...rest} />
   },
 }))
 
 jest.mock('framer-motion', () => {
-  const React = require('react')
-  const passthrough = (Tag: string) =>
-    React.forwardRef((props: any, ref: any) => {
-      const { children, initial, animate, exit, transition, whileHover, whileTap, ...rest } = props
-      return React.createElement(Tag, { ...rest, ref }, children)
-    })
+  const passthrough = (Tag: string) => {
+    const Component = React.forwardRef<HTMLElement, Record<string, unknown>>(
+      (props, ref) => {
+        const {
+          children,
+          initial: _initial,
+          animate: _animate,
+          exit: _exit,
+          transition: _transition,
+          whileHover: _whileHover,
+          whileTap: _whileTap,
+          ...rest
+        } = props
+        return React.createElement(Tag, { ...rest, ref }, children as React.ReactNode)
+      },
+    )
+    Component.displayName = `motion.${Tag}`
+    return Component
+  }
 
   return {
     motion: new Proxy(
@@ -24,10 +38,14 @@ jest.mock('framer-motion', () => {
         get: (_target, tag: string) => passthrough(tag),
       },
     ),
-    AnimatePresence: ({ children }: any) => children,
-    useMotionValue: (initial: any) => ({ get: () => initial, set: jest.fn(), on: jest.fn() }),
-    useTransform: (_value: any, transformer: any) => ({
-      get: () => typeof transformer === 'function' ? transformer(0) : 0,
+    AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
+    useMotionValue: (initial: unknown) => ({
+      get: () => initial,
+      set: jest.fn(),
+      on: jest.fn(),
+    }),
+    useTransform: (_value: unknown, transformer: unknown) => ({
+      get: () => (typeof transformer === 'function' ? (transformer as (v: number) => unknown)(0) : 0),
       on: () => jest.fn(),
     }),
     animate: () => ({ stop: jest.fn() }),
@@ -61,7 +79,6 @@ jest.mock('next/navigation', () => {
     usePathname: () => '/',
   }
 })
-
 
 jest.mock('@/lib/auth-client', () => ({
   authClient: {

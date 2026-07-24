@@ -16,7 +16,8 @@ describe('app/home/page', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('passes a null session when the user is logged out', async () => {
-    ;(auth.api.getSession as jest.Mock).mockResolvedValue(null)
+    // Wrap with jest.mocked()
+    jest.mocked(auth.api.getSession).mockResolvedValue(null as any)
 
     const { default: HomePage } = await import('./page')
     render(await HomePage())
@@ -25,9 +26,10 @@ describe('app/home/page', () => {
   })
 
   it('passes the session payload through to the homepage component when logged in', async () => {
-    ;(auth.api.getSession as jest.Mock).mockResolvedValue({
+    // Wrap with jest.mocked()
+    jest.mocked(auth.api.getSession).mockResolvedValue({
       user: { name: 'Jane', email: 'jane@example.com', profilePic: 'pic.png' },
-    })
+    } as any)
 
     const { default: HomePage } = await import('./page')
     render(await HomePage())

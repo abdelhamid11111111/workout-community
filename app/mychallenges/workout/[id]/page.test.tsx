@@ -13,7 +13,10 @@ jest.mock('next/navigation', () => ({
 describe('app/mychallenges/workout/[id]/page', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ success: true }) }) as any
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true }),
+    }) as any
   })
 
   it('lets a user submit a workout and then navigates back to my challenges', async () => {
@@ -22,11 +25,17 @@ describe('app/mychallenges/workout/[id]/page', () => {
 
     await user.type(screen.getByPlaceholderText('e.g., 45'), '45')
     await user.type(screen.getByPlaceholderText('e.g., 350'), '250')
-    await user.click(screen.getByText('Medium'))
+
+    // Correct option labels, taken from the rendered DOM
+    await user.click(screen.getByText('Moderate'))
     await user.click(screen.getByText('Good'))
+
     await user.click(screen.getByRole('button', { name: /submit workout/i }))
 
-    expect(global.fetch).toHaveBeenCalledWith('/api/workout/c1', expect.objectContaining({ method: 'POST' }))
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/workout/c1',
+      expect.objectContaining({ method: 'POST' }),
+    )
     expect(push).toHaveBeenCalledWith('/mychallenges')
   })
 })

@@ -5,6 +5,8 @@ describe('app/components/ui/homepage/HomePage', () => {
   it('renders the homepage shell', () => {
     render(<HomePage initialSession={null} />)
 
-    expect(screen.getByText(/challenges/i)).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /community workout challenges/i, level: 1 }),
+    ).toBeInTheDocument()
   })
 })

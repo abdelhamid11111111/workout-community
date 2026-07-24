@@ -20,7 +20,7 @@ describe('/api/homepage/cards GET', () => {
     prismaMock.userChallenge.findMany.mockResolvedValue([{ userId: 'u1' }, { userId: 'u2' }])
     prismaMock.workout.count.mockResolvedValue(9)
 
-    const response = await GET(new NextRequest(new Request('http://localhost/api/homepage/cards')))
+    const response = await GET()
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ challenges: 3, totalPar: 2, totalJoins: 9, totalWorkout: 9 })
@@ -29,7 +29,7 @@ describe('/api/homepage/cards GET', () => {
   it('returns 400 when prisma throws', async () => {
     prismaMock.challenge.count.mockRejectedValue(new Error('boom'))
 
-    const response = await GET(new NextRequest(new Request('http://localhost/api/homepage/cards')))
+    const response = await GET()
 
     expect(response.status).toBe(400)
     await expect(response.json()).resolves.toEqual({ error: 'server error' })
