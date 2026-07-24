@@ -1,12 +1,17 @@
 import { getUserJoinsThisWeek } from './getUserJoins'
+import { prisma } from '@/lib/prisma'
 
-const prismaMock = {
-  userChallenge: {
-    findMany: jest.fn(),
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
+    userChallenge: {
+      findMany: jest.fn(),
+    },
   },
-}
+}))
 
-jest.mock('@/lib/prisma', () => ({ prisma: prismaMock }))
+const prismaMock = prisma as unknown as {
+  userChallenge: { findMany: jest.Mock }
+}
 
 describe('getUserJoinsThisWeek', () => {
   beforeEach(() => {

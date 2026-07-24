@@ -1,13 +1,16 @@
+/**
+ * @jest-environment node
+ */
 import { NextRequest } from 'next/server'
 import { GET } from './route'
 
-const prismaMock = {
+jest.mock('@/lib/prisma', () => ({ prisma: {
   challenge: {
     findFirst: jest.fn(),
   },
-}
-
-jest.mock('@/lib/prisma', () => ({ prisma: prismaMock }))
+} }))
+import { prisma } from '@/lib/prisma'
+const prismaMock = prisma as any
 
 describe('/api/challenge/[title] GET', () => {
   beforeEach(() => jest.clearAllMocks())

@@ -1,11 +1,16 @@
 import { render, screen } from '@testing-library/react'
-import EmptyState from './EmptyState'
+import userEvent from '@testing-library/user-event'
+import { EmptyChallenges } from './EmptyState'
 
-describe('EmptyState', () => {
-  it('renders the empty title and supporting copy', () => {
-    render(<EmptyState title="No items" description="Nothing to show" />)
+describe('EmptyChallenges', () => {
+  it('renders empty copy and calls onClear on button click', async () => {
+    const onClear = jest.fn()
+    render(<EmptyChallenges onClear={onClear} />)
 
-    expect(screen.getByText('No items')).toBeInTheDocument()
-    expect(screen.getByText('Nothing to show')).toBeInTheDocument()
+    expect(screen.getByText('No challenges found')).toBeInTheDocument()
+    
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: /clear filters/i }))
+    expect(onClear).toHaveBeenCalled()
   })
 })

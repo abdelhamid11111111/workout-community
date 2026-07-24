@@ -1,22 +1,23 @@
+/**
+ * @jest-environment node
+ */
 import { NextRequest } from 'next/server'
 import { GET, POST, DELETE } from './route'
-
-const authMock = { api: { getSession: jest.fn() } }
-const prismaMock = {
-  workout: {
-    create: jest.fn(),
-    findMany: jest.fn(),
-    deleteMany: jest.fn(),
-  },
-  userChallenge: {
-    delete: jest.fn(),
-  },
-  $transaction: jest.fn(),
-}
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 jest.mock('next/headers', () => ({ headers: jest.fn().mockResolvedValue(new Headers()) }))
-jest.mock('@/lib/auth', () => ({ auth: authMock }))
-jest.mock('@/lib/prisma', () => ({ prisma: prismaMock }))
+jest.mock('@/lib/auth', () => ({ auth: { api: { getSession: jest.fn() } } }))
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
+    workout: { create: jest.fn(), findMany: jest.fn(), deleteMany: jest.fn() },
+    userChallenge: { delete: jest.fn() },
+    $transaction: jest.fn(),
+  },
+}))
+
+const authMock = auth as any
+const prismaMock = prisma as any
 
 const makeRequest = (body: any, method = 'POST') =>
   new NextRequest(new Request('http://localhost/api/workout/c1', {
@@ -24,7 +25,6 @@ const makeRequest = (body: any, method = 'POST') =>
     headers: { 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
   }))
-
 describe('/api/workout/[id] route', () => {
   beforeEach(() => jest.clearAllMocks())
 

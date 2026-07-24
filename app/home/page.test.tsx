@@ -1,10 +1,12 @@
 import { render, screen } from '@testing-library/react'
-import HomePage from './page'
-
-const authMock = { api: { getSession: jest.fn() } }
+import { auth } from '@/lib/auth'
 
 jest.mock('next/headers', () => ({ headers: jest.fn().mockResolvedValue(new Headers()) }))
-jest.mock('@/lib/auth', () => ({ auth: authMock }))
+
+jest.mock('@/lib/auth', () => ({
+  auth: { api: { getSession: jest.fn() } },
+}))
+
 jest.mock('../components/ui/homepage/HomePage', () => ({
   __esModule: true,
   default: ({ initialSession }: any) => <div>{initialSession ? 'session-present' : 'session-absent'}</div>,
@@ -14,18 +16,20 @@ describe('app/home/page', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('passes a null session when the user is logged out', async () => {
-    authMock.api.getSession.mockResolvedValue(null)
+    ;(auth.api.getSession as jest.Mock).mockResolvedValue(null)
 
+    const { default: HomePage } = await import('./page')
     render(await HomePage())
 
     expect(screen.getByText('session-absent')).toBeInTheDocument()
   })
 
   it('passes the session payload through to the homepage component when logged in', async () => {
-    authMock.api.getSession.mockResolvedValue({
+    ;(auth.api.getSession as jest.Mock).mockResolvedValue({
       user: { name: 'Jane', email: 'jane@example.com', profilePic: 'pic.png' },
     })
 
+    const { default: HomePage } = await import('./page')
     render(await HomePage())
 
     expect(screen.getByText('session-present')).toBeInTheDocument()

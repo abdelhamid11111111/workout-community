@@ -3,7 +3,7 @@ import Challenges from './Challenges'
 
 describe('Challenges', () => {
   it('renders the challenge section', () => {
-    render(<Challenges />)
+    render(<Challenges categories={['Cardio', 'Strength', 'Yoga']} />)
 
     expect(screen.getByText(/challenge/i)).toBeInTheDocument()
   })

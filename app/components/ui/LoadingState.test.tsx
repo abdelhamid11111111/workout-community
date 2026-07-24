@@ -1,10 +1,9 @@
-import { render, screen } from '@testing-library/react'
-import LoadingState from './LoadingState'
+import { render } from '@testing-library/react'
+import { ChallengeCardSkeleton } from './LoadingState'
 
-describe('LoadingState', () => {
-  it('renders the loading message', () => {
-    render(<LoadingState message="Loading data" />)
-
-    expect(screen.getByText('Loading data')).toBeInTheDocument()
+describe('ChallengeCardSkeleton', () => {
+  it('renders a skeleton card', () => {
+    const { container } = render(<ChallengeCardSkeleton index={1} />)
+    expect(container.firstChild).toHaveClass('animate-pulse')
   })
 })

@@ -1,17 +1,16 @@
+/**
+ * @jest-environment node
+ */
 import { NextRequest, NextResponse } from 'next/server'
 import { middleware } from './middleware'
+import { auth } from './lib/auth'
 
-const authMock = {
-  api: {
-    getSession: jest.fn(),
-  },
-}
+jest.mock('./lib/auth', () => ({ auth: { api: { getSession: jest.fn() } } }))
 
-jest.mock('./lib/auth', () => ({ auth: authMock }))
+const authMock = auth as any
 
 const makeRequest = (pathname: string) =>
   new NextRequest(new Request(`http://localhost${pathname}`))
-
 describe('middleware', () => {
   beforeEach(() => {
     jest.clearAllMocks()

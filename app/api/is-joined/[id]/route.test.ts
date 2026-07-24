@@ -1,16 +1,18 @@
+/**
+ * @jest-environment node
+ */
 import { NextRequest } from 'next/server'
 import { GET } from './route'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
-const authMock = { api: { getSession: jest.fn() } }
-const prismaMock = {
-  userChallenge: {
-    findUnique: jest.fn(),
-  },
-}
+jest.mock('@/lib/auth', () => ({ auth: { api: { getSession: jest.fn() } } }))
+jest.mock('@/lib/prisma', () => ({
+  prisma: { userChallenge: { findUnique: jest.fn() } },
+}))
 
-jest.mock('@/lib/auth', () => ({ auth: authMock }))
-jest.mock('@/lib/prisma', () => ({ prisma: prismaMock }))
-
+const authMock = auth as any
+const prismaMock = prisma as any
 describe('/api/is-joined/[id] GET', () => {
   beforeEach(() => jest.clearAllMocks())
 

@@ -1,15 +1,15 @@
+/**
+ * @jest-environment node
+ */
 import { GET } from './route'
 
-const analyticsMock = {
-  runRealtimeReport: jest.fn(),
-}
+const analyticsMock: { [k: string]: jest.Mock } = { runRealtimeReport: jest.fn() }
 
 jest.mock('@google-analytics/data', () => ({
   BetaAnalyticsDataClient: jest.fn().mockImplementation(() => ({
     runRealtimeReport: analyticsMock.runRealtimeReport,
   })),
 }))
-
 describe('/api/admin/analytics/realtime GET', () => {
   beforeEach(() => jest.clearAllMocks())
 

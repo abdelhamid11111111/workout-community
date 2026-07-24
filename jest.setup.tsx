@@ -25,6 +25,12 @@ jest.mock('framer-motion', () => {
       },
     ),
     AnimatePresence: ({ children }: any) => children,
+    useMotionValue: (initial: any) => ({ get: () => initial, set: jest.fn(), on: jest.fn() }),
+    useTransform: (_value: any, transformer: any) => ({
+      get: () => typeof transformer === 'function' ? transformer(0) : 0,
+      on: () => jest.fn(),
+    }),
+    animate: () => ({ stop: jest.fn() }),
   }
 })
 
@@ -55,3 +61,12 @@ jest.mock('next/navigation', () => {
     usePathname: () => '/',
   }
 })
+
+
+jest.mock('@/lib/auth-client', () => ({
+  authClient: {
+    useSession: jest.fn(() => ({ data: null, isPending: false })),
+    signIn: { email: jest.fn() },
+    signOut: jest.fn(),
+  },
+}))

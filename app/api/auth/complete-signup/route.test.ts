@@ -1,29 +1,20 @@
+/**
+ * @jest-environment node
+ */
 import { NextRequest } from 'next/server'
 import { POST } from './route'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
-const authMock = {
-  api: {
-    signUpEmail: jest.fn(),
-  },
-}
+jest.mock('@/lib/auth', () => ({ auth: { api: { signUpEmail: jest.fn() } } }))
+jest.mock('@/lib/prisma', () => ({
+  prisma: { user: { findUnique: jest.fn(), update: jest.fn() } },
+}))
+jest.mock('@/lib/cloudinary', () => ({ uploader: { upload: jest.fn() } }))
 
-const prismaMock = {
-  user: {
-    findUnique: jest.fn(),
-    update: jest.fn(),
-  },
-}
-
-const cloudinaryMock = {
-  uploader: {
-    upload: jest.fn(),
-  },
-}
-
-jest.mock('@/lib/auth', () => ({ auth: authMock }))
-jest.mock('@/lib/prisma', () => ({ prisma: prismaMock }))
-jest.mock('@/lib/cloudinary', () => cloudinaryMock)
-
+const authMock = auth as any
+const prismaMock = prisma as any
+const cloudinaryMock = require('@/lib/cloudinary') as any
 describe('/api/auth/complete-signup POST', () => {
   beforeEach(() => jest.clearAllMocks())
 

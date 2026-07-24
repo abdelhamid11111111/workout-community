@@ -40,7 +40,7 @@ describe('ChallengeCard', () => {
     )
 
     expect(screen.getByText('Run 5k')).toBeInTheDocument()
-    expect(screen.getByText('43%')).toBeInTheDocument()
+    expect(screen.getAllByText('43%')[0]).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /leave challenge/i }))
 

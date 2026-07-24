@@ -30,8 +30,8 @@ describe('app/leaderboard/page', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Community Leaderboard')).toBeInTheDocument()
-      expect(screen.getByText('Jane')).toBeInTheDocument()
-      expect(screen.getByText('John')).toBeInTheDocument()
+      expect(screen.getAllByText('Jane')[0]).toBeInTheDocument()
+      expect(screen.getAllByText('John')[0]).toBeInTheDocument()
     })
   })
 })

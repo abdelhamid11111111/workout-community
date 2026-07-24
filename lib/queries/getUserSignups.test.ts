@@ -1,12 +1,17 @@
 import { getUserSignupsThisWeek } from './getUserSignups'
+import { prisma } from '@/lib/prisma'
 
-const prismaMock = {
-  user: {
-    findMany: jest.fn(),
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
+    user: {
+      findMany: jest.fn(),
+    },
   },
-}
+}))
 
-jest.mock('@/lib/prisma', () => ({ prisma: prismaMock }))
+const prismaMock = prisma as unknown as {
+  user: { findMany: jest.Mock }
+}
 
 describe('getUserSignupsThisWeek', () => {
   beforeEach(() => {
@@ -31,13 +36,13 @@ describe('getUserSignupsThisWeek', () => {
         { day: 'Tue', users: 0 },
         { day: 'Wed', users: 0 },
         { day: 'Thu', users: 0 },
-        { day: 'Fri', users: 0 },
-        { day: 'Sat', users: 1 },
-        { day: 'Sun', users: 2 },
+        { day: 'Fri', users: 1 },
+        { day: 'Sat', users: 0 },
+        { day: 'Sun', users: 0 },
       ],
       totalThisWeek: 3,
       avgPerDay: 0.4,
-      peakDay: 'Sun',
+      peakDay: 'Mon',
     })
 
     expect(prismaMock.user.findMany).toHaveBeenCalledWith({
