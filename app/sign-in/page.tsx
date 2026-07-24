@@ -81,7 +81,7 @@ export default function SignIn() {
 
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 lg:p-8">
             {/* 3. onSubmit wired to handleSubmit */}
-            <form className="space-y-5" onSubmit={handleSubmit}>
+            <form className="space-y-5" onSubmit={handleSubmit} noValidate>
               {/* 4. Show the error message, if any */}
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-2.5">

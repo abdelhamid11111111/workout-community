@@ -1,20 +1,28 @@
 /**
  * @jest-environment node
  */
+
+jest.mock('@google-analytics/data', () => {
+  const mockBatchRunReports = jest.fn()
+  return {
+    BetaAnalyticsDataClient: jest.fn().mockImplementation(() => ({
+      batchRunReports: mockBatchRunReports,
+    })),
+    mockBatchRunReports,
+  }
+})
+
 import { GET } from './route'
 
-const analyticsMock: { [k: string]: jest.Mock } = { batchRunReports: jest.fn() }
+const { mockBatchRunReports } = jest.requireMock('@google-analytics/data') as {
+  mockBatchRunReports: jest.Mock
+}
 
-jest.mock('@google-analytics/data', () => ({
-  BetaAnalyticsDataClient: jest.fn().mockImplementation(() => ({
-    batchRunReports: analyticsMock.batchRunReports,
-  })),
-}))
 describe('/api/admin/analytics GET', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('returns a structured analytics payload', async () => {
-    analyticsMock.batchRunReports.mockResolvedValue([
+    mockBatchRunReports.mockResolvedValue([
       {
         reports: [
           { rows: [{ metricValues: [{ value: '100' }, { value: '60' }, { value: '120' }, { value: '0.5' }] }] },

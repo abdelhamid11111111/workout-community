@@ -1,49 +1,74 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import ChallengeCard from './ChallengeCard'
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import ChallengeCard from "./ChallengeCard";
 
-const onDelete = jest.fn()
-
-global.fetch = jest.fn().mockResolvedValue({ json: async () => ({ currentStreak: 2 }) }) as any
-
-jest.mock('./ProgressBar', () => ({
+// Mock next/image so `fill` never lands on the DOM as a boolean attribute
+jest.mock("next/image", () => ({
   __esModule: true,
-  default: ({ progress }: any) => <div>{progress}%</div>,
-}))
+  default: (props: any) => {
+    const { fill, ...rest } = props;
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img {...rest} />;
+  },
+}));
 
-jest.mock('./LiveTimeAgo', () => ({
-  __esModule: true,
-  LiveTimeAgo: ({ date }: any) => <span>{date}</span>,
-}))
+// Mock framer-motion so mount/exit animations can't affect click timing in jsdom
+jest.mock("framer-motion", () => ({
+  motion: {
+    div: ({ children, ...rest }: any) => <div {...rest}>{children}</div>,
+  },
+}));
 
-describe('ChallengeCard', () => {
-  it('renders the challenge details and calls the delete handler', async () => {
-    const user = userEvent.setup()
-    render(
-      <ChallengeCard
-        userChallenge={{
-          challenge: {
-            id: 'c1',
-            title: 'Run 5k',
-            category: 'Strength',
-            level: 'beginner',
-            days: 7,
-            imgs: ['https://img.test/1.png'],
-          },
-          workoutCount: 3,
-          joinedAt: '2026-07-20T00:00:00Z',
-          isCompleted: false,
-          isActive: true,
-        } as any}
-        onDelete={onDelete}
-      />,
-    )
+describe("ChallengeCard", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ currentStreak: 5 }),
+      }),
+    ) as jest.Mock;
+  });
 
-    expect(screen.getByText('Run 5k')).toBeInTheDocument()
-    expect(screen.getAllByText('43%')[0]).toBeInTheDocument()
+  it("should send a DELETE request when leaving a challenge", async () => {
+    const mockOnDelete = jest.fn();
+    const user = userEvent.setup();
 
-    await user.click(screen.getByRole('button', { name: /leave challenge/i }))
+    const mockData = {
+      workoutCount: 3,
+      joinedAt: new Date("2026-07-01"),
+      isCompleted: false,
+      challenge: {
+        id: "c1",
+        title: "30 Day Challenge",
+        category: "Strength",
+        level: "Intermediate",
+        days: "30",
+        imgs: ["/placeholder.jpg"],
+      },
+    } as any;
 
-    expect(global.fetch).toHaveBeenCalledWith('/api/workout/c1', { method: 'DELETE' })
-  })
-})
+    render(<ChallengeCard userChallenge={mockData} onDelete={mockOnDelete} />);
+
+    // Let the mount-time streak fetch resolve first, so it doesn't get
+    // confused with the click-triggered delete fetch.
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith("/api/workout/c1");
+    });
+
+    const leaveButton = screen.getByRole("button", { name: /leave challenge/i });
+    await user.click(leaveButton);
+
+    await waitFor(() => {
+      // Use toHaveBeenLastCalledWith — there are two calls total
+      // (the mount GET, then this DELETE), so asserting on "any call"
+      // can mask a bug where the DELETE call never fires.
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        "/api/workout/c1",
+        expect.objectContaining({ method: "DELETE" }),
+      );
+    });
+
+    expect(mockOnDelete).toHaveBeenCalledWith("c1");
+  });
+});

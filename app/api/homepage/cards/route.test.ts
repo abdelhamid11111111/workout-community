@@ -4,11 +4,13 @@
 import { NextRequest } from 'next/server'
 import { GET } from './route'
 
-jest.mock('@/lib/prisma', () => ({ prisma: {
-  challenge: { count: jest.fn() },
-  userChallenge: { findMany: jest.fn(), },
-  workout: { count: jest.fn() },
-} }))
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
+    challenge: { count: jest.fn() },
+    userChallenge: { findMany: jest.fn(), count: jest.fn() },
+    workout: { count: jest.fn() },
+  },
+}))
 import { prisma } from '@/lib/prisma'
 const prismaMock = prisma as any
 
@@ -18,6 +20,7 @@ describe('/api/homepage/cards GET', () => {
   it('returns totals from prisma on success', async () => {
     prismaMock.challenge.count.mockResolvedValue(3)
     prismaMock.userChallenge.findMany.mockResolvedValue([{ userId: 'u1' }, { userId: 'u2' }])
+    prismaMock.userChallenge.count.mockResolvedValue(9)
     prismaMock.workout.count.mockResolvedValue(9)
 
     const response = await GET()

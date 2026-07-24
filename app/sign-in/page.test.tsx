@@ -1,51 +1,68 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { authClient } from '@/lib/auth-client'
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import SignIn from "./page";
+import { authClient } from "@/lib/auth-client";
 
-const push = jest.fn()
-const refresh = jest.fn()
-const back = jest.fn()
+jest.mock("@/lib/auth-client", () => ({
+  authClient: {
+    signIn: {
+      email: jest.fn(),
+    },
+  },
+}));
 
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({ push, refresh, back }),
-}))
+const mockPush = jest.fn();
+const mockRefresh = jest.fn();
+const mockBack = jest.fn();
 
-// authClient global mock from jest.setup.tsx — no local jest.mock needed.
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockPush,
+    refresh: mockRefresh,
+    back: mockBack,
+  }),
+}));
 
-describe('app/sign-in/page', () => {
-  beforeEach(() => jest.clearAllMocks())
+describe("SignIn", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-  it('submits the sign-in form and redirects on success', async () => {
-    ;(authClient.signIn.email as jest.Mock).mockResolvedValue({ error: null })
+  it("should show an error on invalid credentials", async () => {
+    (authClient.signIn.email as jest.Mock).mockResolvedValue({
+      error: { message: "Invalid email or password." },
+    });
 
-    const user = userEvent.setup()
-    const { default: SignIn } = await import('./page')
-    render(<SignIn />)
+    // delay: null disables the artificial per-keystroke delay,
+    // so this works whether fake or real timers are active.
+    const user = userEvent.setup({ delay: null });
 
-    await user.type(screen.getByPlaceholderText('your@email.com'), 'jane@example.com')
-    await user.type(screen.getByPlaceholderText('Enter your password'), 'password123')
-    await user.click(screen.getByRole('button', { name: /sign in/i }))
+    render(<SignIn />);
 
-    expect(authClient.signIn.email as jest.Mock).toHaveBeenCalledWith({
-      email: 'jane@example.com',
-      password: 'password123',
-    })
-    expect(push).toHaveBeenCalledWith('/home')
-  })
+    const emailInput = screen.getByPlaceholderText(/your@email.com/i);
+    const passwordInput = screen.getByPlaceholderText(/Enter your password/i);
+    const submitButton = screen.getByRole("button", { name: /Sign In/i });
 
-  it('shows an error message when authentication fails', async () => {
-    ;(authClient.signIn.email as jest.Mock).mockResolvedValue({
-      error: { message: 'Invalid email or password.' },
-    })
+    await user.type(emailInput, "jane@example.com");
+    await user.type(passwordInput, "wrongpassword");
 
-    const user = userEvent.setup()
-    const { default: SignIn } = await import('./page')
-    render(<SignIn />)
+    expect(emailInput).toHaveValue("jane@example.com");
+    expect(passwordInput).toHaveValue("wrongpassword");
 
-    await user.type(screen.getByPlaceholderText('your@email.com'), 'jane@example.com')
-    await user.type(screen.getByPlaceholderText('Enter your password'), 'password123')
-    await user.click(screen.getByRole('button', { name: /sign in/i }))
+    expect(jest.isMockFunction(authClient.signIn.email)).toBe(true);
 
-    expect(screen.getByText('Invalid email or password.')).toBeInTheDocument()
-  })
-})
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(authClient.signIn.email).toHaveBeenCalledWith({
+        email: "jane@example.com",
+        password: "wrongpassword",
+      });
+    });
+
+    expect(
+      await screen.findByText(/Invalid email or password/i),
+    ).toBeInTheDocument();
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+});

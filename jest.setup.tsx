@@ -1,17 +1,13 @@
 import '@testing-library/jest-dom'
 import React from 'react'
 
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props: React.ComponentProps<'img'>) => {
-    const { alt = '', ...rest } = props
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img alt={alt} {...rest} />
-  },
-}))
-
 jest.mock('framer-motion', () => {
+  const cache = new Map<string, React.ForwardRefExoticComponent<any>>()
+
   const passthrough = (Tag: string) => {
+    const cached = cache.get(Tag)
+    if (cached) return cached
+
     const Component = React.forwardRef<HTMLElement, Record<string, unknown>>(
       (props, ref) => {
         const {
@@ -28,6 +24,7 @@ jest.mock('framer-motion', () => {
       },
     )
     Component.displayName = `motion.${Tag}`
+    cache.set(Tag, Component)
     return Component
   }
 

@@ -16,6 +16,7 @@ const prismaMock = prisma as unknown as {
 describe('getUserSignupsThisWeek', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    // 2026-07-24 is a Friday
     jest.useFakeTimers().setSystemTime(new Date('2026-07-24T12:00:00Z'))
   })
 
@@ -25,15 +26,15 @@ describe('getUserSignupsThisWeek', () => {
 
   it('aggregates user signups into the current week and computes stats', async () => {
     prismaMock.user.findMany.mockResolvedValue([
-      { createdAt: new Date('2026-07-20T09:00:00Z') },
-      { createdAt: new Date('2026-07-21T09:00:00Z') },
-      { createdAt: new Date('2026-07-24T09:00:00Z') },
+      { createdAt: new Date('2026-07-20T09:00:00Z') }, // Mon
+      { createdAt: new Date('2026-07-21T09:00:00Z') }, // Tue
+      { createdAt: new Date('2026-07-24T09:00:00Z') }, // Fri
     ])
 
     await expect(getUserSignupsThisWeek()).resolves.toEqual({
       data: [
-        { day: 'Mon', users: 0 },
-        { day: 'Tue', users: 0 },
+        { day: 'Mon', users: 1 },
+        { day: 'Tue', users: 1 },
         { day: 'Wed', users: 0 },
         { day: 'Thu', users: 0 },
         { day: 'Fri', users: 1 },
