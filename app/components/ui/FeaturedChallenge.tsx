@@ -61,7 +61,7 @@ const FeaturedChallenge = () => {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.8 }}
       >
-        <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-6 md:mb-8 tracking-tight">
+        <h2 className="text-3xl dark:text-white lg:text-4xl font-extrabold text-slate-900 mb-6 md:mb-8 tracking-tight">
           Featured Challenge
         </h2>
 

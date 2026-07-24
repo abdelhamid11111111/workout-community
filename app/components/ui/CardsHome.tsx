@@ -29,17 +29,17 @@ const CardsHome = () => {
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300"
+          className="bg-white rounded-2xl p-6 shadow-md dark:bg-neutral-900 hover:shadow-lg transition-shadow duration-300"
         >
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-xl bg-slate-100/80">
               <TrendingUp className="w-7 h-7 text-emerald-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-600 font-medium">
+              <p className="text-sm dark:text-white text-slate-600 font-medium">
                 Active Challenges
               </p>
-              <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
+              <p className="text-2xl sm:text-3xl dark:text-white font-extrabold text-slate-900 mt-1">
                 <AnimatedCounter
                   format={(v: number) => `${v.toLocaleString()}`}
                   value={totalChallenges}
@@ -54,17 +54,17 @@ const CardsHome = () => {
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
-          className="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300"
+          className="bg-white dark:bg-neutral-900 rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300"
         >
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-xl bg-slate-100/80">
               <Users className="w-7 h-7 text-amber-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-600 font-medium">
+              <p className="text-sm dark:text-white text-slate-600 font-medium">
                 Total Participants
               </p>
-              <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
+              <p className="text-2xl dark:text-white sm:text-3xl font-extrabold text-slate-900 mt-1">
                 <AnimatedCounter
                   format={(v: number) => `${v.toLocaleString()}`}
                   value={participants}
@@ -79,17 +79,17 @@ const CardsHome = () => {
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300"
+          className="bg-white dark:bg-neutral-900  rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300"
         >
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-xl bg-slate-100/80">
               <Calendar className="w-7 h-7 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-600 font-medium">
+              <p className="text-sm dark:text-white text-slate-600 font-medium">
                 Total Joining
               </p>
-              <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
+              <p className="text-2xl dark:text-white sm:text-3xl font-extrabold text-slate-900 mt-1">
                 <AnimatedCounter
                   format={(v: number) => `${v.toLocaleString()}`}
                   value={totalJoins}
@@ -104,17 +104,17 @@ const CardsHome = () => {
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.6 }}
-          className="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300"
+          className="bg-white dark:bg-neutral-900  rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300"
         >
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-xl bg-slate-100/80">
               <Trophy className="w-7 h-7 text-amber-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-600 font-medium">
+              <p className="text-sm dark:text-white text-slate-600 font-medium">
                 Total Workouts
               </p>
-              <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
+              <p className="text-2xl dark:text-white sm:text-3xl font-extrabold text-slate-900 mt-1">
                 <AnimatedCounter
                   format={(v: number) => `${v.toLocaleString()}`}
                   value={totalWorkouts}

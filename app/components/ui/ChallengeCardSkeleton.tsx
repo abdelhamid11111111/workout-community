@@ -1,12 +1,12 @@
 const ChallengeCardSkeleton = () => {
   return (
-    <div className="relative bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 animate-pulse">
-      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 p-6 lg:p-8">
+    <div className="relative bg-white rounded-2xl dark:bg-neutral-900 overflow-hidden shadow-md border border-slate-100 animate-pulse">
+      <div className="flex flex-col lg:flex-row dark:bg-neutral-900 gap-6 lg:gap-8 p-6 lg:p-8">
         {/* Image */}
-        <div className="w-full lg:w-56 lg:h-56 h-72 flex-shrink-0 rounded-xl bg-slate-200" />
+        <div className="w-full lg:w-56 lg:h-56 dark:bg-neutral-900 h-72 flex-shrink-0 rounded-xl bg-slate-200" />
 
         {/* Content */}
-        <div className="flex-1">
+        <div className="flex-1 dark:bg-neutral-900">
           {/* Title & badges */}
           <div className="mb-5">
             <div className="h-6 lg:h-7 bg-slate-200 rounded-lg w-3/4 mb-3" />

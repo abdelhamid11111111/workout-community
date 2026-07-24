@@ -29,7 +29,7 @@ const ChallengesHome = ({ initialSession }: Props) => {
   const userId = session?.user?.id;
 
   return (
-    <div className="min-h-screen bg-slate-50 antialiased">
+    <div className="min-h-screen dark:bg-neutral-900 dark:text-white bg-slate-50 antialiased">
       {/* Navbar – cleaner, more premium feel */}
       <Navbar initialSession={initialSession} />
 
@@ -91,7 +91,7 @@ const ChallengesHome = ({ initialSession }: Props) => {
       <Challenges categories={categories} levels={levels} />
 
       {/* CTA Footer – richer gradient, better contrast */}
-      {userId ?? <JoinUs />}
+      {!userId && <JoinUs />}
 
       {/* Footer */}
       <Footer />

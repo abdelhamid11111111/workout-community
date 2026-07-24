@@ -5,10 +5,12 @@
   /* --foreground: #171717; */
 }
 
-/* .recharts-wrapper svg:focus,
-.recharts-surface:focus {
-  outline: none;
-} */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+}
 
 .recharts-wrapper:focus,
 .recharts-wrapper *:focus,

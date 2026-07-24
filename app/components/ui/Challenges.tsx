@@ -103,7 +103,7 @@ const Challenges = ({ categories, levels }: Props) => {
     <div>
       {/* Search - Categories */}
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-5 sm:p-6">
+        <div className="bg-white   rounded-2xl shadow-lg  -900 border border-slate-100 p-5 sm:p-6">
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4">
             {/* Search */}
             <div className="relative">
@@ -122,7 +122,7 @@ const Challenges = ({ categories, levels }: Props) => {
                   params.set("page", "1");
                   router.push(`/?${params.toString()}`, { scroll: false });
                 }}
-                className="w-full pl-12 pr-5 py-4 bg-slate-50 rounded-xl border border-slate-200 
+                className="w-full pl-12 pr-5 py-4   bg-slate-50 rounded-xl  border-slate-200 
                       text-base text-mauve-700
                       focus:outline-none"
               />
@@ -239,8 +239,8 @@ const Challenges = ({ categories, levels }: Props) => {
                     delay: index * 0.06,
                     ease: [0.22, 1, 0.36, 1],
                   }}
-                  className="relative bg-white rounded-[28px] overflow-hidden border border-slate-100 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_48px_-16px_rgba(15,23,42,0.18)] hover:-translate-y-1.5 transition-all duration-500 ease-out"
-                >
+                  className="relative bg-white rounded-[28px] overflow-hidden  border-slate-100 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_48px_-16px_rgba(15,23,42,0.18)] hover:-translate-y-1.5 transition-all duration-500 ease-out"
+                > 
                   {/* Image */}
                   <div className="relative h-64 lg:h-72 w-full bg-slate-200 overflow-hidden">
                     <Image
@@ -254,11 +254,11 @@ const Challenges = ({ categories, levels }: Props) => {
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/0 to-slate-900/10" />
 
                     {/* Reward badge */}
-                    <div className="absolute top-5 right-5 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-sm font-semibold">
+                    <div className="absolute top-5 right-5  flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-sm font-semibold">
                       <Trophy className="w-3.5 h-3.5 text-amber-300" />
                       {challenge.rewardPoints} pts
                     </div>
-
+#101010
                     {/* Duration tag */}
                     <div className="absolute bottom-5 left-5 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-sm font-semibold">
                       <Calendar className="w-3.5 h-3.5" />
@@ -289,7 +289,7 @@ const Challenges = ({ categories, levels }: Props) => {
                       </span>
                     </div>
 
-                    <h3 className="text-xl lg:text-2xl font-bold text-slate-900 mb-2.5 tracking-tight line-clamp-1 antialiased [text-rendering:optimizeLegibility] [font-synthesis:none]">
+                    <h3 className="text-xl lg:text-2xl  font-bold text-slate-900 mb-2.5 tracking-tight line-clamp-1 antialiased [text-rendering:optimizeLegibility] [font-synthesis:none]">
                       {challenge.title}
                     </h3>
 
