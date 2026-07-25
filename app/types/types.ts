@@ -7,7 +7,7 @@ export type FormType = {
   days: string;
   rewardPoints: string;
   category: string;
-  level: Level;
+  level: Level | '';
   goals: string[];
   images: (File | string | null)[];
 };

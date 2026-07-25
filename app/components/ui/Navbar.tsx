@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { User as UserIcon, LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
 
 type SessionUser = {
@@ -17,7 +16,7 @@ type Props = {
 };
 
 const Navbar = ({ initialSession }: Props) => {
-  const { theme, setTheme } = useTheme();
+  // const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { data: session, isPending } = authClient.useSession();

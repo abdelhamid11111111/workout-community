@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Level } from "@/app/types/types";
 import toast, { Toaster } from "react-hot-toast";
 
 type Props = {
@@ -29,7 +30,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
     days: "",
     rewardPoints: "",
     category: "",
-    level: "",
+    level: '' ,
     goals: [],
     images: [null, null, null],
   });
@@ -298,7 +299,7 @@ export default function NewChallengePage({ categories, levels }: Props) {
                         name="level"
                         value={lv}
                         onChange={(e) =>
-                          setForm({ ...form, level: e.target.value })
+                          setForm({ ...form, level: e.target.value as Level })
                         }
                         className="sr-only"
                       />

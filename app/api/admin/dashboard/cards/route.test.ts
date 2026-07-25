@@ -23,7 +23,7 @@ describe('/api/admin/dashboard/cards GET', () => {
     prismaMock.workout.count.mockResolvedValue(12)
     prismaMock.workout.findMany.mockResolvedValue([{ caloriesBurned: 100 }, { caloriesBurned: 50 }])
 
-    const response = await GET(new NextRequest(new Request('http://localhost/api/admin/dashboard/cards')))
+    const response = await GET()
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({

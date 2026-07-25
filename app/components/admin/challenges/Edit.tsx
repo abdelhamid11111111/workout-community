@@ -1,6 +1,6 @@
 "use client";
 import Sidebar from "@/app/components/admin/SideBar";
-import { FormType } from "@/app/types/types";
+import { FormType, Level } from "@/app/types/types";
 import { ArrowLeft, Plus, X, ImagePlus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -367,7 +367,7 @@ export default function EditChallengesPage({ categories, levels }: Props) {
                         checked={form.level === lv}
                         value={lv}
                         onChange={(e) =>
-                          setForm({ ...form, level: e.target.value })
+                          setForm({ ...form, level: e.target.value as Level })
                         }
                         className="sr-only"
                       />
