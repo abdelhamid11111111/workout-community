@@ -8,6 +8,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:integration": "jest --config jest.integration.config.ts --runInBand",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate"
@@ -44,6 +45,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "testcontainers": "^11.0.0",
+    "@testcontainers/postgresql": "^11.0.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "prisma": "^7.5.0",

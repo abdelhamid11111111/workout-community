@@ -13,10 +13,12 @@ const eslintConfig = defineConfig([
       "**/*.spec.{ts,tsx}",
       "**/__mocks__/**",
       "jest.setup.tsx",
+      "**/__tests__/integration/setup/**", 
     ],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-var-requires": "off",
+      "@typescript-eslint/no-require-imports": "off", 
     },
   },
 
