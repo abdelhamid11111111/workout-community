@@ -1,5 +1,6 @@
 "use client";
 import Sidebar from "@/app/components/admin/SideBar";
+import { Suspense } from "react";
 import Cards from "@/app/components/admin/users/Cards";
 import Graph from "@/app/components/admin/users/Graph";
 import Table from "@/app/components/admin/users/Table";
@@ -29,7 +30,9 @@ export default function UsersPage() {
           <Graph />
 
           {/* Table */}
-          <Table/>
+          <Suspense fallback={null}>
+            <Table />
+          </Suspense>
         </div>
       </div>
     </div>
