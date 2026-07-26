@@ -18,8 +18,13 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
   fallback: true,
 });
 
+function cleanEnvValue(raw: string | undefined): string {
+  if (!raw) return '';
+  return raw.trim().replace(/^"([\s\S]*)"$/, '$1');
+}
+
 export async function GET() {
-  const property = `properties/${process.env.GA_PROPERTY_ID}`;
+  const property = `properties/${cleanEnvValue(process.env.GA_PROPERTY_ID)}`;
 
   try {
     const [response] = await analyticsDataClient.runRealtimeReport({

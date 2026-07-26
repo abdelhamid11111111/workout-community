@@ -33,8 +33,13 @@ function formatDateLabel(dateStr: string): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+function cleanEnvValue(raw: string | undefined): string {
+  if (!raw) return "";
+  return raw.trim().replace(/^"([\s\S]*)"$/, "$1");
+}
+
 export async function GET() {
-  const property = `properties/${process.env.GA_PROPERTY_ID}`;
+  const property = `properties/${cleanEnvValue(process.env.GA_PROPERTY_ID)}`;
   const now = new Date();
   const startOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   const dateRanges = [{ startDate: startOfMonth, endDate: "today" }];
