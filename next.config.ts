@@ -22,7 +22,7 @@ const nextConfig = {
               "default-src 'self'",
               `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com https://www.google-analytics.com`,
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' https://res.cloudinary.com https://www.google-analytics.com data:",
+              "img-src 'self' https://res.cloudinary.com https://www.google-analytics.com data: blob:",
               "font-src 'self'",
               "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://analytics.google.com",
               "frame-ancestors 'none'",

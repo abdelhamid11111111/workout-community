@@ -2,7 +2,7 @@
 import Sidebar from "@/app/components/admin/SideBar";
 import { FormType, Level } from "@/app/types/types";
 import { ArrowLeft, Plus, X, ImagePlus } from "lucide-react";
-import Image from "next/image";
+// import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -451,13 +451,11 @@ export default function EditChallengesPage({ categories, levels }: Props) {
                     <div key={i} className="flex items-center gap-3">
                       <div className="w-14 h-14 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden shrink-0 flex items-center justify-center">
                         {preview ? (
-                          <Image
+                          <img
                             src={preview}
                             alt=""
-                            width={56}
-                            height={56}
                             className="w-full h-full object-cover"
-                            unoptimized={true}
+                            // unoptimized={true}
                           />
                         ) : (
                           <ImagePlus className="w-5 h-5 text-slate-300" />
