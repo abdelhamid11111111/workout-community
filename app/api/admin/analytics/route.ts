@@ -45,6 +45,11 @@ export async function GET() {
   const dateRanges = [{ startDate: startOfMonth, endDate: "today" }];
 
   try {
+    // NOTE: intentionally NOT setting `limit` on any request below.
+    // Some client/runtime combinations fail to serialize the int64 `limit`
+    // field in REST/fallback mode ("toProto3JSON: don't know how to convert
+    // value 5"), regardless of whether it's passed as a number or a string.
+    // Instead we fetch full result sets and slice them client-side below.
     const [batch1Response, batch2Response] = await Promise.all([
       analyticsDataClient.batchRunReports({
         property,
@@ -75,7 +80,6 @@ export async function GET() {
             dateRanges,
             dimensions: [{ name: "browser" }],
             metrics: [{ name: "activeUsers" }],
-            limit: "5",
           },
           {
             property,
@@ -88,7 +92,6 @@ export async function GET() {
             dateRanges,
             dimensions: [{ name: "country" }],
             metrics: [{ name: "activeUsers" }],
-            limit: "5",
           },
         ],
       }),
@@ -100,14 +103,12 @@ export async function GET() {
             dateRanges,
             dimensions: [{ name: "pagePath" }],
             metrics: [{ name: "screenPageViews" }],
-            limit: "5",
           },
           {
             property,
             dateRanges,
             dimensions: [{ name: "sessionSource" }],
             metrics: [{ name: "activeUsers" }],
-            limit: "6",
           },
         ],
       }),
@@ -179,7 +180,8 @@ export async function GET() {
       cursor.setDate(cursor.getDate() + 1);
     }
 
-    const browserRows = reports[2]?.rows || [];
+    // Slice to top N client-side (replaces the old `limit` request param)
+    const browserRows = (reports[2]?.rows || []).slice(0, 5);
     const browserTotal = browserRows.reduce(
       (acc, r) => acc + parseInt(r.metricValues?.[0]?.value || "0", 10),
       0,
@@ -215,7 +217,7 @@ export async function GET() {
       };
     });
 
-    const countryRows = reports[4]?.rows || [];
+    const countryRows = (reports[4]?.rows || []).slice(0, 5);
     const countryTotal = countryRows.reduce(
       (acc, r) => acc + parseInt(r.metricValues?.[0]?.value || "0", 10),
       0,
@@ -233,7 +235,7 @@ export async function GET() {
       };
     });
 
-    const pageRows = reports[5]?.rows || [];
+    const pageRows = (reports[5]?.rows || []).slice(0, 5);
     const pageTotal = pageRows.reduce(
       (acc, r) => acc + parseInt(r.metricValues?.[0]?.value || "0", 10),
       0,
@@ -249,7 +251,7 @@ export async function GET() {
       };
     });
 
-    const trafficRows = reports[6]?.rows || [];
+    const trafficRows = (reports[6]?.rows || []).slice(0, 6);
     const trafficTotal = trafficRows.reduce(
       (acc, r) => acc + parseInt(r.metricValues?.[0]?.value || "0", 10),
       0,
