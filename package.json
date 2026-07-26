@@ -48,10 +48,10 @@
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "jest-mock-extended": "^4.0.1",
-    "prisma": "^7.5.0",
+    "prisma": "^7.9.0",
     "tailwindcss": "^4",
     "testcontainers": "^11.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   }
 }
