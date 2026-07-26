@@ -12,13 +12,10 @@ const Graph = ({ data = [] }: GraphProps) => {
     <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-6 shadow-sm">
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-bold text-slate-800">Daily Visitors</h3>
-        <span className="text-xs text-slate-400">Last 28 Days</span>
+        <span className="text-xs text-slate-400">This Month</span>
       </div>
       <ResponsiveContainer width="100%" height={200}>
-        <AreaChart
-          data={data}
-          margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
-        >
+        <AreaChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
