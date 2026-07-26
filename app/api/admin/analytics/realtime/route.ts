@@ -3,10 +3,17 @@ export const dynamic = 'force-dynamic';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { NextResponse } from 'next/server';
 
+function parsePrivateKey(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  // Strip accidental wrapping quotes (e.g. copied straight from JSON key file)
+  const unquoted = raw.trim().replace(/^"([\s\S]*)"$/, '$1');
+  return unquoted.replace(/\\n/g, '\n');
+}
+
 const analyticsDataClient = new BetaAnalyticsDataClient({
   credentials: {
     client_email: process.env.GA_CLIENT_EMAIL,
-    private_key: process.env.GA_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    private_key: parsePrivateKey(process.env.GA_PRIVATE_KEY),
   },
   fallback: true,
 });
