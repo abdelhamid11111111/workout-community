@@ -245,7 +245,7 @@ const Leaderboard = () => {
                             {user.name}
                           </p>
                           <p className="text-sm text-gray-600">
-                            {user.email}
+                            {/* {user.email} */}
                           </p>
                         </div>
                       </div>
