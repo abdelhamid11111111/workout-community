@@ -20,7 +20,6 @@ A full-stack fitness challenge platform where users join workout challenges, log
 ### User Side
 
 <img width="1910" height="3771" alt="1" src="https://github.com/user-attachments/assets/ff3926a2-1fb6-4088-835d-9f2261d842bb" />
-<img width="1910" height="3771" alt="1" src="https://github.com/user-attachments/assets/17188427-f28a-4680-a34d-5ab74515e28b" />
 
 
 
@@ -32,8 +31,9 @@ A full-stack fitness challenge platform where users join workout challenges, log
 
 ### Admin Side
 
-<!-- Add screenshots of the admin dashboard, users management, challenge management, analytics, etc. -->
-<!-- Example: ![Admin dashboard](./screenshots/admin/dashboard.png) -->
+<img width="1910" height="2144" alt="image" src="https://github.com/user-attachments/assets/70ca6c44-84be-4ae0-84a4-a90f9fac6089" />
+<img width="1910" height="1545" alt="image" src="https://github.com/user-attachments/assets/69c4c83f-493b-458a-882a-d71511727413" />
+
 
 |  |  |
 |---|---|
