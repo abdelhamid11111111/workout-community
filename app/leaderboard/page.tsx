@@ -32,7 +32,7 @@ const Leaderboard = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/admin/users/table?page=1");
+        const res = await fetch("/api/leaderboard");
         const data: ApiRes2 = await res.json();
         setUsers(data.data);
       } catch (error) {
