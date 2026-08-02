@@ -1,4 +1,4 @@
-# Workout Community
+<img width="1910" height="1545" alt="image" src="https://github.com/user-attachments/assets/43c648f2-4f55-41b1-982a-3d61039b88d8" /># Workout Community
 
 A full-stack fitness challenge platform where users join workout challenges, log sessions, track progress, and compete on a leaderboard. Built with Next.js, Prisma, and PostgreSQL, with an admin dashboard for managing users, challenges, and site analytics.
 
@@ -32,7 +32,8 @@ A full-stack fitness challenge platform where users join workout challenges, log
 ### Admin Side
 
 <img width="1910" height="2144" alt="image" src="https://github.com/user-attachments/assets/70ca6c44-84be-4ae0-84a4-a90f9fac6089" />
-<img width="1910" height="1545" alt="image" src="https://github.com/user-attachments/assets/69c4c83f-493b-458a-882a-d71511727413" />
+<img width="1910" height="1545" alt="image" src="https://github.com/user-attachments/assets/fe90fb02-2ff5-4829-94cb-cf74b99f83e5" />
+
 
 
 |  |  |
