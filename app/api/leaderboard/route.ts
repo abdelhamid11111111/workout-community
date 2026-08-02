@@ -4,6 +4,11 @@ import { Level } from "@/generated/prisma/enums";
 
 const items_per_page = 8;
 
+// Public leaderboard endpoint — intentionally does NOT require auth,
+// this page is meant to be visible to everyone. Unlike
+// /api/admin/users/table (which requires an admin session and returns
+// every column including email/passwordHash/ban status), this route
+// explicitly selects only the fields that are safe to show publicly.
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
@@ -16,23 +21,24 @@ export async function GET(req: NextRequest) {
       ...(level ? { currentLevel: level as Level } : {}),
     };
 
-    const totalItems = await prisma.user.count({
-      where,
-    });
+    const totalItems = await prisma.user.count({ where });
 
     const offset = (page - 1) * items_per_page;
-
     const totalPages = Math.ceil(totalItems / items_per_page);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
 
-    const Users = await prisma.user.findMany({
+    const users = await prisma.user.findMany({
       where,
-      include: { _count: { select: { workouts: true, challenges: true } } },
+      select: {
+        id: true,
+        name: true,
+        profilePic: true,
+        currentLevel: true,
+        _count: { select: { workouts: true, challenges: true } },
+      },
       orderBy: {
-        workouts: {
-          _count: "desc",
-        },
+        workouts: { _count: "desc" },
       },
       skip: offset,
       take: items_per_page,
@@ -40,13 +46,13 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(
       {
-        data: Users,
+        data: users,
         pagination: {
-          totalItems: totalItems,
-          totalPages: totalPages,
-          offset: offset,
-          hasNextPage: hasNextPage,
-          hasPrevPage: hasPrevPage,
+          totalItems,
+          totalPages,
+          offset,
+          hasNextPage,
+          hasPrevPage,
           currentPage: page,
         },
       },
