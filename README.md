@@ -1,5 +1,3 @@
-<img width="1910" height="1545" alt="image" src="https://github.com/user-attachments/assets/43c648f2-4f55-41b1-982a-3d61039b88d8" /># Workout Community
-
 A full-stack fitness challenge platform where users join workout challenges, log sessions, track progress, and compete on a leaderboard. Built with Next.js, Prisma, and PostgreSQL, with an admin dashboard for managing users, challenges, and site analytics.
 
 **Live demo:** [workout-community.vercel.app](https://workout-community.vercel.app)
