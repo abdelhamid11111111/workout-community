@@ -20,7 +20,8 @@ A full-stack fitness challenge platform where users join workout challenges, log
 ### User Side
 
 <img width="1910" height="3771" alt="1" src="https://github.com/user-attachments/assets/ff3926a2-1fb6-4088-835d-9f2261d842bb" />
-<img width="1910" height="3771" alt="1" src="https://github.com/user-attachments/assets/25542fb9-9616-4e42-ab84-7a82f6cc6c6f" />
+<img width="1910" height="3771" alt="1" src="https://github.com/user-attachments/assets/17188427-f28a-4680-a34d-5ab74515e28b" />
+
 
 
 
